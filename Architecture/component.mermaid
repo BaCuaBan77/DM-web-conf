@@ -1,0 +1,13 @@
+flowchart TD
+    subgraph WebConfig[Web Config Container (Spring Boot + React)]
+        Frontend[React Frontend (Vite + TypeScript)]
+        API[REST API Controllers]
+        Validation[Validation Layer]
+        FileMgr[File Manager (JSON + properties)]
+        Script[Reboot Script Executor]
+    end
+
+    Frontend -->|Calls API endpoints| API
+    API --> Validation
+    Validation --> FileMgr
+    API --> Script

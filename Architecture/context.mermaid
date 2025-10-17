@@ -1,0 +1,4 @@
+flowchart TD
+    User[End User (Admin/Operator)] -->|Uses web interface| WebConfig[Device Manager Web Config (Spring Boot + React)]
+    WebConfig -->|Reads/Writes files| Host[Debian Host (/opt/dm/*, /etc/network/interfaces)]
+    Host -->|Device Manager reads updated files| DM[Device Manager Container (dm)]

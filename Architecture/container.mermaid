@@ -1,0 +1,9 @@
+flowchart TD
+    subgraph Host[Debian Host]
+        DM[Device Manager Container (dm)] 
+        WebConfig[Web Config Container]
+    end
+
+    DM -->|Reads config files| Host
+    WebConfig -->|Reads/Writes /opt/dm files| Host
+    WebConfig -->|Executes reboot script| Host
