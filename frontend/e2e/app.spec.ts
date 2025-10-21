@@ -140,20 +140,16 @@ test.describe('Material UI Application E2E Tests', () => {
     await page.getByTestId('tab-network').click();
     await page.waitForTimeout(1500);
 
-    // Check for radio buttons by their label text
-    const dhcpRadio = page.getByText('DHCP').locator('..').locator('input[type="radio"]');
-    const staticRadio = page.getByText('Static IP').locator('..').locator('input[type="radio"]');
-
     // Click DHCP radio button
-    await dhcpRadio.check();
+    await page.getByTestId('radio-dhcp').click();
     await page.waitForTimeout(500);
 
     // Click Static radio button
-    await staticRadio.check();
+    await page.getByTestId('radio-static').click();
     await page.waitForTimeout(500);
     
     // IP fields should be visible
-    await expect(page.getByPlaceholder('192.168.1.100')).toBeVisible();
+    await expect(page.getByTestId('input-address')).toBeVisible();
   });
 
   test('should show Save confirmation dialog', async ({ page }) => {
@@ -189,8 +185,8 @@ test.describe('Material UI Application E2E Tests', () => {
 
     // Should show serial port configuration fields
     await expect(page.getByText('Serial Port').first()).toBeVisible();
-    await expect(page.getByText('Baud Rate')).toBeVisible();
-    await expect(page.getByText('Parity')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Baud Rate' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Parity' })).toBeVisible();
   });
 
   test('should configure S900 device with IP settings', async ({ page }) => {

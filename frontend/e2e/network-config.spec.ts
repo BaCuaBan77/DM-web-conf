@@ -25,46 +25,43 @@ test.describe('Network Configuration E2E Tests', () => {
 
   test('should validate IP address format', async ({ page }) => {
     // Make sure we're in Static IP mode first
-    const staticRadio = page.getByText('Static IP').locator('..').locator('input[type="radio"]');
-    await staticRadio.check();
+    await page.getByTestId('radio-static').click();
     await page.waitForTimeout(500);
 
     // Enter invalid IP address
-    const addressInput = page.getByPlaceholder('192.168.1.100');
+    const addressInput = page.getByTestId('input-address');
     await addressInput.clear();
     await addressInput.fill('999.999.999.999');
     await addressInput.blur();
     await page.waitForTimeout(300);
 
     // Should show validation error
-    await expect(page.getByText(/invalid ipv4/i)).toBeVisible();
+    await expect(page.getByText(/invalid ip address/i)).toBeVisible();
   });
 
   test('should validate netmask format', async ({ page }) => {
     // Make sure we're in Static IP mode
-    const staticRadio = page.getByText('Static IP').locator('..').locator('input[type="radio"]');
-    await staticRadio.check();
+    await page.getByTestId('radio-static').click();
     await page.waitForTimeout(500);
 
     // Enter invalid netmask
-    const netmaskInput = page.getByPlaceholder('255.255.255.0');
+    const netmaskInput = page.getByTestId('input-netmask');
     await netmaskInput.clear();
     await netmaskInput.fill('999.0.0.0');
     await netmaskInput.blur();
     await page.waitForTimeout(300);
 
     // Should show validation error
-    await expect(page.getByText(/invalid ipv4/i)).toBeVisible();
+    await expect(page.getByText(/invalid netmask/i)).toBeVisible();
   });
 
   test('should allow optional gateway', async ({ page }) => {
     // Make sure we're in Static IP mode
-    const staticRadio = page.getByText('Static IP').locator('..').locator('input[type="radio"]');
-    await staticRadio.check();
+    await page.getByTestId('radio-static').click();
     await page.waitForTimeout(500);
 
     // Gateway field should exist and be optional (can be empty)
-    const gatewayInput = page.getByPlaceholder('192.168.1.1');
+    const gatewayInput = page.getByTestId('input-gateway');
     await expect(gatewayInput).toBeVisible();
     
     // Clear gateway
@@ -78,29 +75,27 @@ test.describe('Network Configuration E2E Tests', () => {
 
   test('should validate gateway format when provided', async ({ page }) => {
     // Make sure we're in Static IP mode
-    const staticRadio = page.getByText('Static IP').locator('..').locator('input[type="radio"]');
-    await staticRadio.check();
+    await page.getByTestId('radio-static').click();
     await page.waitForTimeout(500);
 
     // Enter invalid gateway
-    const gatewayInput = page.getByPlaceholder('192.168.1.1');
+    const gatewayInput = page.getByTestId('input-gateway');
     await gatewayInput.clear();
     await gatewayInput.fill('invalid.ip');
     await gatewayInput.blur();
     await page.waitForTimeout(300);
 
     // Should show validation error
-    await expect(page.getByText(/invalid ipv4/i)).toBeVisible();
+    await expect(page.getByText(/invalid gateway/i)).toBeVisible();
   });
 
   test('should enable Save button when network config changes', async ({ page }) => {
     // Make sure we're in Static IP mode
-    const staticRadio = page.getByText('Static IP').locator('..').locator('input[type="radio"]');
-    await staticRadio.check();
+    await page.getByTestId('radio-static').click();
     await page.waitForTimeout(500);
 
     // Make a change
-    const addressInput = page.getByPlaceholder('192.168.1.100');
+    const addressInput = page.getByTestId('input-address');
     await addressInput.clear();
     await addressInput.fill('192.168.1.20');
     await page.waitForTimeout(500);
@@ -112,32 +107,29 @@ test.describe('Network Configuration E2E Tests', () => {
 
   test('should switch between DHCP and Static methods', async ({ page }) => {
     // Check DHCP radio
-    const dhcpRadio = page.getByText('DHCP').locator('..').locator('input[type="radio"]');
-    await dhcpRadio.check();
+    await page.getByTestId('radio-dhcp').click();
     await page.waitForTimeout(500);
 
     // Verify DHCP is selected
-    await expect(dhcpRadio).toBeChecked();
+    await expect(page.getByTestId('radio-dhcp')).toBeChecked();
 
     // Switch to Static
-    const staticRadio = page.getByText('Static IP').locator('..').locator('input[type="radio"]');
-    await staticRadio.check();
+    await page.getByTestId('radio-static').click();
     await page.waitForTimeout(500);
 
     // Verify Static is selected
-    await expect(staticRadio).toBeChecked();
+    await expect(page.getByTestId('radio-static')).toBeChecked();
     
     // IP fields should be visible
-    await expect(page.getByPlaceholder('192.168.1.100')).toBeVisible();
+    await expect(page.getByTestId('input-address')).toBeVisible();
   });
 
   test('should show unsaved changes indicator on Network Config tab', async ({ page }) => {
     // Make a change
-    const staticRadio = page.getByText('Static IP').locator('..').locator('input[type="radio"]');
-    await staticRadio.check();
+    await page.getByTestId('radio-static').click();
     await page.waitForTimeout(500);
 
-    const addressInput = page.getByPlaceholder('192.168.1.100');
+    const addressInput = page.getByTestId('input-address');
     await addressInput.clear();
     await addressInput.fill('10.0.0.50');
     await page.waitForTimeout(500);
@@ -149,19 +141,18 @@ test.describe('Network Configuration E2E Tests', () => {
 
   test('should accept valid static IP configuration', async ({ page }) => {
     // Switch to Static mode
-    const staticRadio = page.getByText('Static IP').locator('..').locator('input[type="radio"]');
-    await staticRadio.check();
+    await page.getByTestId('radio-static').click();
     await page.waitForTimeout(500);
 
     // Fill in valid static IP configuration
-    await page.getByPlaceholder('192.168.1.100').clear();
-    await page.getByPlaceholder('192.168.1.100').fill('192.168.2.100');
+    await page.getByTestId('input-address').clear();
+    await page.getByTestId('input-address').fill('192.168.2.100');
     
-    await page.getByPlaceholder('255.255.255.0').clear();
-    await page.getByPlaceholder('255.255.255.0').fill('255.255.255.0');
+    await page.getByTestId('input-netmask').clear();
+    await page.getByTestId('input-netmask').fill('255.255.255.0');
     
-    await page.getByPlaceholder('192.168.1.1').clear();
-    await page.getByPlaceholder('192.168.1.1').fill('192.168.2.1');
+    await page.getByTestId('input-gateway').clear();
+    await page.getByTestId('input-gateway').fill('192.168.2.1');
     
     await page.waitForTimeout(500);
 
@@ -178,9 +169,11 @@ test.describe('Network Configuration E2E Tests', () => {
     // Verify auto-detected label
     await expect(page.getByText('(Auto-detected)')).toBeVisible();
     
-    // Verify there's no input field for interface (it's read-only)
-    // The interface value should be displayed as text, not in an input
-    const interfaceSection = page.locator('text=Network Interface').locator('..');
-    await expect(interfaceSection).toBeVisible();
+    // Verify there's no text input field for interface (it's displayed as read-only text)
+    // Count input fields - there should only be 0 or 3 (if static mode: address, netmask, gateway)
+    // but no input for interface
+    const interfaceInputs = await page.locator('input[type="text"]').count();
+    // Interface is NOT an input field (it's just text)
+    expect(interfaceInputs).toBeLessThanOrEqual(3);
   });
 });

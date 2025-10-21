@@ -225,8 +225,8 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
                   value={method}
                   onChange={(e) => setMethod(e.target.value)}
                 >
-                  <FormControlLabel value="static" control={<Radio />} label="Static IP" />
-                  <FormControlLabel value="dhcp" control={<Radio />} label="DHCP" />
+                  <FormControlLabel value="static" control={<Radio inputProps={{ 'data-testid': 'radio-static' }} />} label="Static IP" />
+                  <FormControlLabel value="dhcp" control={<Radio inputProps={{ 'data-testid': 'radio-dhcp' }} />} label="DHCP" />
                 </RadioGroup>
               </FormControl>
             </Box>
@@ -238,6 +238,7 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
                     IP Address
                   </Typography>
                   <TextField
+                    inputProps={{ 'data-testid': 'input-address' }}
                     fullWidth
                     placeholder="192.168.1.100"
                     value={address}
@@ -257,6 +258,7 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
                     Netmask
                   </Typography>
                   <TextField
+                    inputProps={{ 'data-testid': 'input-netmask' }}
                     fullWidth
                     placeholder="255.255.255.0"
                     value={netmask}
@@ -276,6 +278,7 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
                     Gateway
                   </Typography>
                   <TextField
+                    inputProps={{ 'data-testid': 'input-gateway' }}
                     fullWidth
                     placeholder="192.168.1.1"
                     value={gateway}

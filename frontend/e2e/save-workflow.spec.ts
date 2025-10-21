@@ -183,8 +183,8 @@ test.describe('Save Workflow E2E Tests', () => {
     await page.getByTestId('save-button').click();
     await page.getByTestId('dialog-confirm').click();
 
-    // Should show error notification
-    await expect(page.getByText(/error/i)).toBeVisible({ timeout: 5000 });
+    // Should show error notification (Failed to save or Error:)
+    await expect(page.getByText(/Failed to save|Error:/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('should maintain data across tab switches', async ({ page }) => {
