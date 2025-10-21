@@ -58,7 +58,7 @@ const theme = createTheme({
 });
 
 function App() {
-  const { hasChanges, isValid, setHasChanges, setIsValid, resetChanges } = useConfig();
+  const { hasChanges, isValid, setHasChanges, setIsValid, resetChanges, configData } = useConfig();
   const [currentTab, setCurrentTab] = useState(0);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' | 'warning' });
   const [confirmDialog, setConfirmDialog] = useState(false);
@@ -194,37 +194,74 @@ function App() {
           
           switch (key) {
             case 'devices':
-              const devicesData = devicesTabRef.current?.getData();
+              // Get data from Context and transform to backend format
+              const devicesCtx = configData.devices;
+              const devicesData = {
+                deviceManagerKey: devicesCtx?.key || '',
+                deviceManagerName: devicesCtx?.name || ''
+              };
               response = await saveData('devices', devicesData);
               break;
             
             case 'config':
-              const configData = configPropertiesTabRef.current?.getData();
-              response = await saveData('properties', configData);
+              // Get data from Context and transform to backend format
+              const configCtx = configData.config;
+              const configProps = {
+                'mqtt.broker': configCtx?.broker || '',
+                'mqtt.port': configCtx?.port || '',
+                'mqtt.username': configCtx?.username || '',
+                'mqtt.password': configCtx?.password || ''
+              };
+              response = await saveData('properties', configProps);
               break;
             
             case 'ibac':
-              const ibacData = ibacTabRef.current?.getData();
+              // Get data from Context and convert parity format
+              const { _original: _origIbac, ...ibacRaw } = configData.ibac || {};
+              const ibacData = { ...ibacRaw };
+              if (ibacData.parity) {
+                const parityMap: { [key: string]: string } = { 'None': 'N', 'Even': 'E', 'Odd': 'O' };
+                ibacData.parity = parityMap[ibacData.parity] || ibacData.parity;
+              }
               response = await saveDeviceConfig('IBAC', ibacData);
               break;
             
             case 's900':
-              const s900Data = s900TabRef.current?.getData();
+              // Get data from Context and convert parity format
+              const { _original: _origS900, ...s900Raw } = configData.s900 || {};
+              const s900Data = { ...s900Raw };
+              if (s900Data.parity) {
+                const parityMap: { [key: string]: string } = { 'None': 'N', 'Even': 'E', 'Odd': 'O' };
+                s900Data.parity = parityMap[s900Data.parity] || s900Data.parity;
+              }
               response = await saveDeviceConfig('S900', s900Data);
               break;
             
             case 'ori':
-              const oriData = oriTabRef.current?.getData();
+              // Get data from Context and convert parity format
+              const { _original: _origOri, ...oriRaw } = configData.ori || {};
+              const oriData = { ...oriRaw };
+              if (oriData.parity) {
+                const parityMap: { [key: string]: string } = { 'None': 'N', 'Even': 'E', 'Odd': 'O' };
+                oriData.parity = parityMap[oriData.parity] || oriData.parity;
+              }
               response = await saveDeviceConfig('oritestgtdb', oriData);
               break;
             
             case 'wxt':
-              const wxtData = wxtTabRef.current?.getData();
+              // Get data from Context and convert parity format
+              const { _original: _origWxt, ...wxtRaw } = configData.wxt || {};
+              const wxtData = { ...wxtRaw };
+              if (wxtData.parity) {
+                const parityMap: { [key: string]: string } = { 'None': 'N', 'Even': 'E', 'Odd': 'O' };
+                wxtData.parity = parityMap[wxtData.parity] || wxtData.parity;
+              }
               response = await saveDeviceConfig('wxt53x', wxtData);
               break;
             
             case 'network':
-              const networkData = networkTabRef.current?.getData();
+              // Get data from Context
+              const { _original: _origNetwork, ...networkData } = configData.network || {};
               response = await saveNetworkConfig(networkData);
               hasNetworkConfig = true;
               break;
