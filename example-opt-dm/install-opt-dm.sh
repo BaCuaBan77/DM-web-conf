@@ -125,6 +125,14 @@ ls -lAh "$DEST_DIR/devices.d"
 echo ""
 
 if [ $MISSING_FILES -eq 0 ]; then
+    # Make reboot.sh executable
+    if [ -f "$DEST_DIR/reboot.sh" ]; then
+        echo "Making reboot.sh executable..."
+        chmod +x "$DEST_DIR/reboot.sh"
+        echo -e "${GREEN}✓ reboot.sh is now executable${NC}"
+    fi
+    
+    echo ""
     echo -e "${GREEN}✓ Installation completed successfully!${NC}"
     echo ""
     echo "Next steps:"

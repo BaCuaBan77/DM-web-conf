@@ -8,6 +8,7 @@ This directory structure represents the **production configuration layout** for 
 /opt/dm/
 ├── devices.json           # Device Manager configuration
 ├── config.properties      # MQTT broker settings
+├── reboot.sh             # System reboot script
 └── devices.d/             # Device-specific configurations
     ├── IBAC.json         # IBAC2 device (Serial)
     ├── S900.json         # S900 device (Network)
@@ -30,6 +31,7 @@ sudo chmod 755 /opt/dm/devices.d
 sudo chmod 644 /opt/dm/*.json
 sudo chmod 644 /opt/dm/*.properties
 sudo chmod 644 /opt/dm/devices.d/*.json
+sudo chmod +x /opt/dm/reboot.sh  # Make reboot script executable
 ```
 
 ### Option 2: Using the Installation Script
@@ -125,6 +127,33 @@ Configuration for devices connected via serial port:
   - GTD Module-B: Default 80
 - `name`: Device name (max 50 characters)
 - `enabled`: Enable/disable device
+
+### 4. `reboot.sh`
+System reboot script executed when the application needs to restart the system (e.g., after network configuration changes).
+
+**Key Features:**
+- Logs all reboot operations to `/var/log/dm-reboot.log`
+- Adds delay to allow web responses to complete
+- Syncs filesystem before rebooting
+- Optional service graceful shutdown
+
+**Requirements:**
+- Must be executable: `chmod +x /opt/dm/reboot.sh`
+- Should be owned by root or a user with reboot privileges
+- Backend must have permission to execute it
+
+**Usage:**
+The backend automatically calls this script when:
+- Network configuration is changed via the UI
+- User clicks "Save & Reboot" for network settings
+
+**Testing:**
+```bash
+# Test the script (will actually reboot the system!)
+sudo /opt/dm/reboot.sh
+
+# Or test in simulation mode by commenting out the /sbin/reboot line
+```
 
 ## Validation Rules
 
