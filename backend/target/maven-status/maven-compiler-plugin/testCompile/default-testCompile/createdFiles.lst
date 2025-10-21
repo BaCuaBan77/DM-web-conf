@@ -1,5 +1,0 @@
-com/observis/dmconfig/integration/FullWorkflowIntegrationTest.class
-com/observis/dmconfig/validation/ValidationServiceTest.class
-com/observis/dmconfig/controller/ConfigControllerTest.class
-com/observis/dmconfig/service/FileServiceTest.class
-com/observis/dmconfig/service/RebootServiceTest.class

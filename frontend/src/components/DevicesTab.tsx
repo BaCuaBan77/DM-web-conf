@@ -1,17 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { getDevicesConfig, saveDevicesConfig } from '../api/configApi';
-import { validateDeviceManagerKey, validateDeviceManagerName } from '../utils/validation';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { TextField, CircularProgress, Alert, Box, Typography } from '@mui/material';
+import { getDevicesConfig } from '../api/configApi';
+import { validateMQTTTopic } from '../utils/validation';
 
-const DevicesTab: React.FC = () => {
+interface DevicesTabProps {
+  onDataChange: (hasChanges: boolean) => void;
+  onValidationChange: (isValid: boolean) => void;
+}
+
+const DevicesTab = forwardRef((props: DevicesTabProps, ref) => {
+  const { onDataChange, onValidationChange } = props;
   const [deviceManagerKey, setDeviceManagerKey] = useState('');
   const [deviceManagerName, setDeviceManagerName] = useState('');
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
+  const [originalData, setOriginalData] = useState<any>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  useImperativeHandle(ref, () => ({
+    getData: () => ({
+      deviceManagerKey,
+      deviceManagerName
+    })
+  }));
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    validateForm();
+    checkForChanges();
+  }, [deviceManagerKey, deviceManagerName]);
 
   const loadData = async () => {
     try {
@@ -19,6 +39,7 @@ const DevicesTab: React.FC = () => {
       const data = await getDevicesConfig();
       setDeviceManagerKey(data.deviceManagerKey || '');
       setDeviceManagerName(data.deviceManagerName || '');
+      setOriginalData(data);
     } catch (error: any) {
       setMessage(`Failed to load: ${error.message}`);
     } finally {
@@ -26,96 +47,81 @@ const DevicesTab: React.FC = () => {
     }
   };
 
+  const checkForChanges = () => {
+    if (!originalData) return;
+    
+    const hasChanges = 
+      deviceManagerKey !== originalData.deviceManagerKey ||
+      deviceManagerName !== originalData.deviceManagerName;
+    
+    onDataChange(hasChanges);
+  };
+
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!validateDeviceManagerKey(deviceManagerKey)) {
-      if (deviceManagerKey.includes('/')) {
-        newErrors.deviceManagerKey = 'Forward slashes (/) not allowed';
-      } else if (deviceManagerKey.includes('#') || deviceManagerKey.includes('+')) {
-        newErrors.deviceManagerKey = 'Invalid MQTT characters (# and + not allowed)';
-      } else if (deviceManagerKey.length > 20) {
-        newErrors.deviceManagerKey = 'Maximum 20 characters allowed';
-      } else {
-        newErrors.deviceManagerKey = 'Invalid device manager key';
-      }
+    if (!deviceManagerKey) {
+      newErrors.deviceManagerKey = 'Device Manager Key is required';
+    } else if (!validateMQTTTopic(deviceManagerKey)) {
+      newErrors.deviceManagerKey = 'Invalid MQTT topic (alphanumeric, spaces, -, _, and . only)';
     }
 
-    if (!validateDeviceManagerName(deviceManagerName)) {
-      if (deviceManagerName.length > 50) {
-        newErrors.deviceManagerName = 'Maximum 50 characters allowed';
-      } else {
-        newErrors.deviceManagerName = 'Invalid device manager name';
-      }
+    if (!deviceManagerName || deviceManagerName.trim().length === 0) {
+      newErrors.deviceManagerName = 'Device Manager Name is required';
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSave = async () => {
-    if (!validateForm()) {
-      return;
-    }
-
-    try {
-      const result = await saveDevicesConfig({
-        deviceManagerKey,
-        deviceManagerName
-      });
-      setMessage(result.message || 'Saved successfully');
-    } catch (error: any) {
-      setMessage(`Save failed: ${error.message}`);
-    }
+    const isValid = Object.keys(newErrors).length === 0;
+    onValidationChange(isValid);
+    return isValid;
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress />
+      </Box>
+    );
   }
 
-  const isFormValid = validateDeviceManagerKey(deviceManagerKey) && 
-                      validateDeviceManagerName(deviceManagerName);
-
   return (
-    <div>
-      <h2>Device Manager Configuration</h2>
-      
-      <div>
-        <label htmlFor="deviceManagerKey">Device Manager Key:</label>
-        <input
-          id="deviceManagerKey"
-          type="text"
+    <Box>
+      <Typography variant="h6" gutterBottom>
+        Device Manager Configuration
+      </Typography>
+      <Typography variant="body2" color="text.secondary" paragraph>
+        Configure the device manager key and name for MQTT communication.
+      </Typography>
+
+      {message && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {message}
+        </Alert>
+      )}
+
+      <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 } }}>
+        <TextField
+          fullWidth
+          label="Device Manager Key"
           value={deviceManagerKey}
           onChange={(e) => setDeviceManagerKey(e.target.value)}
-          onBlur={validateForm}
+          error={!!errors.deviceManagerKey}
+          helperText={errors.deviceManagerKey || 'MQTT topic key for this device manager'}
         />
-        {errors.deviceManagerKey && (
-          <div style={{ color: 'red' }}>{errors.deviceManagerKey}</div>
-        )}
-      </div>
 
-      <div>
-        <label htmlFor="deviceManagerName">Device Manager Name:</label>
-        <input
-          id="deviceManagerName"
-          type="text"
+        <TextField
+          fullWidth
+          label="Device Manager Name"
           value={deviceManagerName}
           onChange={(e) => setDeviceManagerName(e.target.value)}
-          onBlur={validateForm}
+          error={!!errors.deviceManagerName}
+          helperText={errors.deviceManagerName || 'Human-readable name for this device manager'}
         />
-        {errors.deviceManagerName && (
-          <div style={{ color: 'red' }}>{errors.deviceManagerName}</div>
-        )}
-      </div>
-
-      <button onClick={handleSave} disabled={!isFormValid}>
-        Save
-      </button>
-
-      {message && <div>{message}</div>}
-    </div>
+      </Box>
+    </Box>
   );
-};
+});
+
+DevicesTab.displayName = 'DevicesTab';
 
 export default DevicesTab;
-

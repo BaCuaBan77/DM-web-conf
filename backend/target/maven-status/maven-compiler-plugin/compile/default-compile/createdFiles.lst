@@ -1,6 +1,0 @@
-com/observis/dmconfig/service/FileService.class
-com/observis/dmconfig/validation/ValidationService.class
-com/observis/dmconfig/DmConfigApplication.class
-com/observis/dmconfig/controller/ConfigController.class
-com/observis/dmconfig/service/ConfigService.class
-com/observis/dmconfig/service/RebootService.class

@@ -42,6 +42,20 @@ export function isMQTTTopicValid(topic: string | null | undefined): boolean {
 }
 
 /**
+ * Validate MQTT topic (alias for isMQTTTopicValid)
+ */
+export function validateMQTTTopic(topic: string): boolean {
+  return isMQTTTopicValid(topic);
+}
+
+/**
+ * Validate port number (alias for validatePortNumber)
+ */
+export function validatePort(port: number): boolean {
+  return validatePortNumber(port);
+}
+
+/**
  * Validate deviceManagerName: max 50 chars, spaces allowed
  */
 export function validateDeviceManagerName(name: string | null | undefined): boolean {

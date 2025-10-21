@@ -1,0 +1,6 @@
+{
+  "deviceType" : "IBAC",
+  "address" : "ttyS0",
+  "name" : "Sequential IBAC",
+  "enabled" : true
+}

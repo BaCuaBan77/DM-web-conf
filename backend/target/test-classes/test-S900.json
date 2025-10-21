@@ -1,8 +1,0 @@
-{
-  "address": "192.168.1.50",
-  "portNumber": 502,
-  "name": "Test S900 Device",
-  "protocol": "modbus",
-  "internalId": "s900_001"
-}
-

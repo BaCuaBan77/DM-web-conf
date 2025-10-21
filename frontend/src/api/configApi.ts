@@ -74,3 +74,30 @@ export async function reboot(): Promise<ApiResponse> {
   return response.data;
 }
 
+/**
+ * Get network configuration
+ */
+export async function getNetworkConfig(): Promise<any> {
+  const response = await axios.get(`${API_BASE_URL}/network`);
+  return response.data;
+}
+
+/**
+ * Save network configuration (automatically reboots)
+ */
+export async function saveNetworkConfig(data: any): Promise<ApiResponse> {
+  const response = await axios.post(`${API_BASE_URL}/network`, data);
+  return response.data;
+}
+
+/**
+ * Save configuration data (general purpose - devices or config)
+ */
+export async function saveData(configType: string, data: any): Promise<ApiResponse> {
+  const response = await axios.post(`${API_BASE_URL}/save`, {
+    configType,
+    data
+  });
+  return response.data;
+}
+

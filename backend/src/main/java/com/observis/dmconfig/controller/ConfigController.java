@@ -3,6 +3,7 @@ package com.observis.dmconfig.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.observis.dmconfig.service.ConfigService;
 import com.observis.dmconfig.service.RebootService;
+import com.observis.dmconfig.service.NetworkConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class ConfigController {
 
     @Autowired
     private RebootService rebootService;
+
+    @Autowired
+    private NetworkConfigService networkConfigService;
 
     /**
      * GET /api/devices - Get devices.json configuration
@@ -187,6 +191,50 @@ public class ConfigController {
         response.put("success", false);
         response.put("error", message);
         return response;
+    }
+
+    /**
+     * GET /api/network - Get network configuration
+     */
+    @GetMapping("/network")
+    public ResponseEntity<?> getNetworkConfig() {
+        try {
+            Map<String, String> config = networkConfigService.getNetworkConfig();
+            return ResponseEntity.ok(config);
+        } catch (Exception e) {
+            logger.error("Error reading network config", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse(e.getMessage()));
+        }
+    }
+
+    /**
+     * POST /api/network - Save network configuration and reboot
+     */
+    @PostMapping("/network")
+    public ResponseEntity<?> saveNetworkConfig(@RequestBody Map<String, String> config) {
+        try {
+            networkConfigService.saveNetworkConfig(config);
+            
+            // Trigger reboot after saving network config
+            rebootService.executeReboot();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Network configuration saved successfully. System rebooting...");
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            logger.error("Validation error", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            logger.error("Error saving network config", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse(e.getMessage()));
+        }
     }
 
     /**

@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { getDeviceConfig, saveDeviceConfig } from '../api/configApi';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
-  validateSerialPort,
-  validateBaudRate,
-  validateSerialPortType,
-  validateParity,
-  validateDataBits,
-  validateStopBits,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  CircularProgress,
+  Alert,
+  Box,
+  Typography,
+  Stack
+} from '@mui/material';
+import { getDeviceConfig } from '../api/configApi';
+import {
   validateDeviceName,
   validateIPv4,
   validatePortNumber
@@ -14,28 +20,49 @@ import {
 
 interface DeviceTabProps {
   deviceName: string;
+  onDataChange: (hasChanges: boolean) => void;
+  onValidationChange: (isValid: boolean) => void;
 }
 
-const DeviceTab: React.FC<DeviceTabProps> = ({ deviceName }) => {
+const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
+  const { deviceName, onDataChange, onValidationChange } = props;
   const [config, setConfig] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
+  const [originalData, setOriginalData] = useState<any>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  useImperativeHandle(ref, () => ({
+    getData: () => config
+  }));
 
   useEffect(() => {
     loadData();
   }, [deviceName]);
+
+  useEffect(() => {
+    validateForm();
+    checkForChanges();
+  }, [config]);
 
   const loadData = async () => {
     try {
       setLoading(true);
       const data = await getDeviceConfig(deviceName);
       setConfig(data);
+      setOriginalData(data);
     } catch (error: any) {
       setMessage(`Failed to load: ${error.message}`);
     } finally {
       setLoading(false);
     }
+  };
+
+  const checkForChanges = () => {
+    if (!originalData) return;
+    
+    const hasChanges = JSON.stringify(config) !== JSON.stringify(originalData);
+    onDataChange(hasChanges);
   };
 
   const validateForm = () => {
@@ -45,19 +72,12 @@ const DeviceTab: React.FC<DeviceTabProps> = ({ deviceName }) => {
       newErrors.name = 'Maximum 50 characters allowed';
     }
 
-    // Serial device validation (IBAC, WXT53X)
-    if (deviceName.toUpperCase() === 'IBAC' || deviceName.toUpperCase() === 'WXT53X') {
-      if (config.address && !validateSerialPort(config.address)) {
-        newErrors.address = 'Invalid serial port';
-      }
-    }
-
     // S900 validation
     if (deviceName.toUpperCase() === 'S900') {
       if (config.address && !validateIPv4(config.address)) {
         newErrors.address = 'Invalid IP address';
       }
-      if (config.portNumber !== undefined && !validatePortNumber(config.portNumber)) {
+      if (config.portNumber !== undefined && config.portNumber && !validatePortNumber(config.portNumber)) {
         newErrors.portNumber = 'Port must be between 1 and 65535';
       }
     }
@@ -70,20 +90,9 @@ const DeviceTab: React.FC<DeviceTabProps> = ({ deviceName }) => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSave = async () => {
-    if (!validateForm()) {
-      return;
-    }
-
-    try {
-      const result = await saveDeviceConfig(deviceName, config);
-      setMessage(result.message || 'Saved');
-    } catch (error: any) {
-      setMessage(`Save failed: ${error.message}`);
-    }
+    const isValid = Object.keys(newErrors).length === 0;
+    onValidationChange(isValid);
+    return isValid;
   };
 
   const updateField = (field: string, value: any) => {
@@ -91,164 +100,169 @@ const DeviceTab: React.FC<DeviceTabProps> = ({ deviceName }) => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress />
+      </Box>
+    );
   }
-
-  const isFormValid = Object.keys(errors).length === 0;
 
   // Render serial device configuration (IBAC, WXT53X)
   const renderSerialConfig = () => (
-    <>
-      <div>
-        <label htmlFor="address">Address:</label>
-        <select
-          id="address"
-          value={config.address || ''}
-          onChange={(e) => updateField('address', e.target.value)}
-        >
-          <option value="ttyS0">ttyS0</option>
-          <option value="ttyS1">ttyS1</option>
-        </select>
-      </div>
+    <Stack spacing={2}>
+      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        <FormControl sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <InputLabel>Serial Port</InputLabel>
+          <Select
+            value={config.address || 'ttyS0'}
+            onChange={(e) => updateField('address', e.target.value)}
+            label="Serial Port"
+          >
+            <MenuItem value="ttyS0">ttyS0</MenuItem>
+            <MenuItem value="ttyS1">ttyS1</MenuItem>
+          </Select>
+        </FormControl>
 
-      <div>
-        <label htmlFor="speed">Speed:</label>
-        <select
-          id="speed"
-          value={config.speed || ''}
-          onChange={(e) => updateField('speed', e.target.value)}
-        >
-          <option value="9600">9600</option>
-          <option value="19200">19200</option>
-          <option value="38400">38400</option>
-          <option value="57600">57600</option>
-          <option value="115200">115200</option>
-        </select>
-      </div>
+        <FormControl sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <InputLabel>Baud Rate</InputLabel>
+          <Select
+            value={config.speed || '9600'}
+            onChange={(e) => updateField('speed', e.target.value)}
+            label="Baud Rate"
+          >
+            <MenuItem value="9600">9600</MenuItem>
+            <MenuItem value="19200">19200</MenuItem>
+            <MenuItem value="38400">38400</MenuItem>
+            <MenuItem value="57600">57600</MenuItem>
+            <MenuItem value="115200">115200</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
 
-      <div>
-        <label htmlFor="bits">Data Bits:</label>
-        <select
-          id="bits"
-          value={config.bits || ''}
-          onChange={(e) => updateField('bits', e.target.value)}
-        >
-          <option value="7">7</option>
-          <option value="8">8</option>
-        </select>
-      </div>
+      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        <FormControl sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <InputLabel>Data Bits</InputLabel>
+          <Select
+            value={config.bits || '8'}
+            onChange={(e) => updateField('bits', e.target.value)}
+            label="Data Bits"
+          >
+            <MenuItem value="7">7</MenuItem>
+            <MenuItem value="8">8</MenuItem>
+          </Select>
+        </FormControl>
 
-      <div>
-        <label htmlFor="stopBits">Stop Bits:</label>
-        <select
-          id="stopBits"
-          value={config.stopBits || ''}
-          onChange={(e) => updateField('stopBits', e.target.value)}
-        >
-          <option value="1">1</option>
-          <option value="2">2</option>
-        </select>
-      </div>
+        <FormControl sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <InputLabel>Stop Bits</InputLabel>
+          <Select
+            value={config.stopBits || '1'}
+            onChange={(e) => updateField('stopBits', e.target.value)}
+            label="Stop Bits"
+          >
+            <MenuItem value="1">1</MenuItem>
+            <MenuItem value="2">2</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
 
-      <div>
-        <label htmlFor="parity">Parity:</label>
-        <select
-          id="parity"
-          value={config.parity || ''}
-          onChange={(e) => updateField('parity', e.target.value)}
-        >
-          <option value="None">None</option>
-          <option value="Even">Even</option>
-          <option value="Odd">Odd</option>
-        </select>
-      </div>
+      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        <FormControl sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <InputLabel>Parity</InputLabel>
+          <Select
+            value={config.parity || 'None'}
+            onChange={(e) => updateField('parity', e.target.value)}
+            label="Parity"
+          >
+            <MenuItem value="None">None</MenuItem>
+            <MenuItem value="Even">Even</MenuItem>
+            <MenuItem value="Odd">Odd</MenuItem>
+          </Select>
+        </FormControl>
 
-      <div>
-        <label htmlFor="serialPortType">Serial Port Type:</label>
-        <select
-          id="serialPortType"
-          value={config.serialPortType || ''}
-          onChange={(e) => updateField('serialPortType', e.target.value)}
-        >
-          <option value="RS232">RS232</option>
-          <option value="RS485">RS485</option>
-        </select>
-      </div>
-    </>
+        <FormControl sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <InputLabel>Serial Port Type</InputLabel>
+          <Select
+            value={config.serialPortType || 'RS232'}
+            onChange={(e) => updateField('serialPortType', e.target.value)}
+            label="Serial Port Type"
+          >
+            <MenuItem value="RS232">RS232</MenuItem>
+            <MenuItem value="RS485">RS485</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+    </Stack>
   );
 
   // Render S900 configuration
   const renderS900Config = () => (
-    <>
-      <div>
-        <label htmlFor="address">Address:</label>
-        <input
-          id="address"
-          type="text"
-          value={config.address || ''}
-          onChange={(e) => updateField('address', e.target.value)}
-          onBlur={validateForm}
-        />
-        {errors.address && <div style={{ color: 'red' }}>{errors.address}</div>}
-      </div>
+    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+      <TextField
+        sx={{ flex: '1 1 200px', minWidth: '200px' }}
+        label="IP Address"
+        value={config.address || ''}
+        onChange={(e) => updateField('address', e.target.value)}
+        error={!!errors.address}
+        helperText={errors.address || 'S900 device IP address'}
+      />
 
-      <div>
-        <label htmlFor="portNumber">Port Number:</label>
-        <input
-          id="portNumber"
-          type="number"
-          value={config.portNumber || ''}
-          onChange={(e) => updateField('portNumber', parseInt(e.target.value))}
-          onBlur={validateForm}
-        />
-        {errors.portNumber && <div style={{ color: 'red' }}>{errors.portNumber}</div>}
-      </div>
-    </>
+      <TextField
+        sx={{ flex: '1 1 200px', minWidth: '200px' }}
+        label="Port Number"
+        type="number"
+        value={config.portNumber || ''}
+        onChange={(e) => updateField('portNumber', parseInt(e.target.value) || '')}
+        error={!!errors.portNumber}
+        helperText={errors.portNumber || 'S900 device port number'}
+      />
+    </Box>
   );
 
   // Render oritestgtdb configuration
   const renderOritestgtdbConfig = () => (
-    <div>
-      <label htmlFor="address">Address:</label>
-      <input
-        id="address"
-        type="text"
-        value={config.address || ''}
-        onChange={(e) => updateField('address', e.target.value)}
-        onBlur={validateForm}
-      />
-      {errors.address && <div style={{ color: 'red' }}>{errors.address}</div>}
-    </div>
+    <TextField
+      fullWidth
+      label="IP Address"
+      value={config.address || ''}
+      onChange={(e) => updateField('address', e.target.value)}
+      error={!!errors.address}
+      helperText={errors.address || 'OriTestGTDB database IP address'}
+    />
   );
 
   return (
-    <div>
-      <h2>{deviceName} Configuration</h2>
-      
-      {(deviceName.toUpperCase() === 'IBAC' || deviceName.toUpperCase() === 'WXT53X') && renderSerialConfig()}
-      {deviceName.toUpperCase() === 'S900' && renderS900Config()}
-      {deviceName.toUpperCase() === 'ORITESTGTDB' && renderOritestgtdbConfig()}
+    <Box>
+      <Typography variant="h6" gutterBottom>
+        {deviceName} Configuration
+      </Typography>
+      <Typography variant="body2" color="text.secondary" paragraph>
+        Configure {deviceName} device settings.
+      </Typography>
 
-      <div>
-        <label htmlFor="name">Name:</label>
-        <input
-          id="name"
-          type="text"
-          value={config.name || ''}
-          onChange={(e) => updateField('name', e.target.value)}
-          onBlur={validateForm}
-        />
-        {errors.name && <div style={{ color: 'red' }}>{errors.name}</div>}
-      </div>
+      {message && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {message}
+        </Alert>
+      )}
 
-      <button onClick={handleSave} disabled={!isFormValid}>
-        Save
-      </button>
+      <Box sx={{ mb: 3 }}>
+        {(deviceName.toUpperCase() === 'IBAC' || deviceName.toUpperCase() === 'WXT53X') && renderSerialConfig()}
+        {deviceName.toUpperCase() === 'S900' && renderS900Config()}
+        {deviceName.toUpperCase() === 'ORITESTGTDB' && renderOritestgtdbConfig()}
+      </Box>
 
-      {message && <div>{message}</div>}
-    </div>
+      <TextField
+        fullWidth
+        label="Device Name"
+        value={config.name || ''}
+        onChange={(e) => updateField('name', e.target.value)}
+        error={!!errors.name}
+        helperText={errors.name || 'Human-readable name for this device (max 50 characters)'}
+      />
+    </Box>
   );
-};
+});
+
+DeviceTab.displayName = 'DeviceTab';
 
 export default DeviceTab;
-
