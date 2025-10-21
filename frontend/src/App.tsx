@@ -411,6 +411,7 @@ function App() {
                 {section.items.map((item) => (
                   <ListItem key={item.key} disablePadding sx={{ mb: 0.5 }}>
                     <ListItemButton
+                      data-testid={`tab-${item.key}`}
                       selected={currentTab === item.index}
                       onClick={() => handleMenuClick(item.index)}
                       sx={{
@@ -489,6 +490,7 @@ function App() {
                 </Typography>
               </Box>
               <Button
+                data-testid="save-button"
                 variant="contained"
                 color="primary"
                 startIcon={<SaveIcon />}
@@ -596,10 +598,10 @@ function App() {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setConfirmDialog(false)} color="inherit">
+            <Button data-testid="dialog-cancel" onClick={() => setConfirmDialog(false)} color="inherit">
               Cancel
             </Button>
-            <Button onClick={executeSaveAndReboot} color="primary" variant="contained" autoFocus>
+            <Button data-testid="dialog-confirm" onClick={executeSaveAndReboot} color="primary" variant="contained" autoFocus>
               Save Changes
             </Button>
           </DialogActions>

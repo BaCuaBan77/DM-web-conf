@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Save & Reboot Workflow E2E Tests', () => {
+test.describe('Save Workflow E2E Tests', () => {
   
   test.beforeEach(async ({ page }) => {
     // Mock the backend to prevent actual reboot during tests
@@ -25,106 +25,107 @@ test.describe('Save & Reboot Workflow E2E Tests', () => {
   });
 
   test('should complete full save workflow for Devices tab', async ({ page }) => {
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1500);
 
-    // Make changes
-    const keyInput = page.getByLabel('Device Manager Key');
+    // Make changes using placeholders
+    const keyInput = page.getByPlaceholder('DM-1');
     await keyInput.clear();
     await keyInput.fill('new-device-key');
     
-    const nameInput = page.getByLabel('Device Manager Name');
+    const nameInput = page.getByPlaceholder('Detection Station 1');
     await nameInput.clear();
     await nameInput.fill('New Device Name');
 
     await page.waitForTimeout(500);
 
-    // Click Save & Reboot
-    const saveButton = page.getByRole('button', { name: /save & reboot/i });
+    // Click Save button
+    const saveButton = page.getByTestId('save-button');
     await expect(saveButton).toBeEnabled();
     await saveButton.click();
 
     // Confirm in dialog
-    await expect(page.getByText('Confirm Save & Reboot')).toBeVisible();
-    await page.getByRole('dialog').getByRole('button', { name: /save & reboot/i }).click();
+    await expect(page.getByText('Confirm Save Changes')).toBeVisible();
+    await page.getByTestId('dialog-confirm').click();
 
     // Should show success notification
-    await expect(page.getByText(/configuration saved/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/saved successfully/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('should complete full save workflow for Config Properties tab', async ({ page }) => {
     // Go to Config Properties tab
-    await page.getByRole('tab', { name: /config properties/i }).click();
-    await page.waitForTimeout(1000);
+    await page.getByTestId('tab-config').click();
+    await page.waitForTimeout(1500);
 
-    // Make changes
-    await page.getByLabel('MQTT Broker IP').clear();
-    await page.getByLabel('MQTT Broker IP').fill('192.168.1.10');
+    // Make changes using placeholders
+    await page.getByPlaceholder('192.168.1.100').clear();
+    await page.getByPlaceholder('192.168.1.100').fill('192.168.1.10');
     
-    await page.getByLabel('MQTT Port').clear();
-    await page.getByLabel('MQTT Port').fill('1883');
+    await page.getByPlaceholder('1883').clear();
+    await page.getByPlaceholder('1883').fill('1884');
 
     await page.waitForTimeout(500);
 
-    // Click Save & Reboot
-    const saveButton = page.getByRole('button', { name: /save & reboot/i });
+    // Click Save button
+    const saveButton = page.getByTestId('save-button');
     await expect(saveButton).toBeEnabled();
     await saveButton.click();
 
     // Confirm
-    await page.getByRole('dialog').getByRole('button', { name: /save & reboot/i }).click();
+    await page.getByTestId('dialog-confirm').click();
 
     // Should show success
-    await expect(page.getByText(/configuration saved/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/saved successfully/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('should prevent save when validation fails', async ({ page }) => {
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1500);
 
     // Enter invalid data
-    await page.getByLabel('Device Manager Key').clear();
-    await page.getByLabel('Device Manager Key').fill('invalid/key');
+    await page.getByPlaceholder('DM-1').clear();
+    await page.getByPlaceholder('DM-1').fill('invalid/key');
 
     await page.waitForTimeout(500);
 
-    // Save button might be enabled but validation should fail
-    const saveButton = page.getByRole('button', { name: /save & reboot/i });
+    // Save button should be disabled due to validation error
+    const saveButton = page.getByTestId('save-button');
     
-    // If button is enabled, clicking should show error
-    if (await saveButton.isEnabled()) {
+    // Either button is disabled or clicking shows error
+    const isEnabled = await saveButton.isEnabled();
+    if (isEnabled) {
       await saveButton.click();
-      await expect(page.getByText(/please fix validation errors/i)).toBeVisible({ timeout: 2000 });
+      // Should show error in snackbar or alert
+      await expect(page.getByText(/invalid mqtt topic/i)).toBeVisible({ timeout: 2000 });
     } else {
-      // Button is correctly disabled
       await expect(saveButton).toBeDisabled();
     }
   });
 
   test('should allow canceling save operation', async ({ page }) => {
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1500);
 
     // Make changes
-    await page.getByLabel('Device Manager Key').clear();
-    await page.getByLabel('Device Manager Key').fill('test-cancel');
+    await page.getByPlaceholder('DM-1').clear();
+    await page.getByPlaceholder('DM-1').fill('test-cancel');
 
     await page.waitForTimeout(500);
 
-    // Click Save & Reboot
-    await page.getByRole('button', { name: /save & reboot/i }).click();
+    // Click Save button
+    await page.getByTestId('save-button').click();
 
     // Dialog should appear
-    await expect(page.getByText('Confirm Save & Reboot')).toBeVisible();
+    await expect(page.getByText('Confirm Save Changes')).toBeVisible();
 
     // Click Cancel
-    await page.getByRole('button', { name: /cancel/i }).click();
+    await page.getByTestId('dialog-cancel').click();
 
     // Dialog should close
-    await expect(page.getByText('Confirm Save & Reboot')).not.toBeVisible();
+    await expect(page.getByText('Confirm Save Changes')).not.toBeVisible();
 
     // Changes should still be there
-    expect(await page.getByLabel('Device Manager Key').inputValue()).toBe('test-cancel');
+    expect(await page.getByPlaceholder('DM-1').inputValue()).toBe('test-cancel');
     
     // Button should still be enabled
-    await expect(page.getByRole('button', { name: /save & reboot/i })).toBeEnabled();
+    await expect(page.getByTestId('save-button')).toBeEnabled();
   });
 
   test('should show loading state during save', async ({ page }) => {
@@ -141,23 +142,23 @@ test.describe('Save & Reboot Workflow E2E Tests', () => {
     await page.waitForTimeout(1500);
 
     // Make changes
-    const keyInput = page.getByLabel('Device Manager Key');
+    const keyInput = page.getByPlaceholder('DM-1');
     await keyInput.clear();
     await keyInput.fill('test-loading');
     await keyInput.blur();
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(500);
 
     // Check if button is enabled before clicking
-    const saveButton = page.getByRole('button', { name: /save & reboot/i });
+    const saveButton = page.getByTestId('save-button');
     const isEnabled = await saveButton.isEnabled();
     
     if (isEnabled) {
-      // Click Save & Reboot
+      // Click Save button
       await saveButton.click();
-      await page.getByRole('dialog').getByRole('button', { name: /save & reboot/i }).click();
+      await page.getByTestId('dialog-confirm').click();
 
-      // Should show "Saving..." text or button should be disabled
-      await page.waitForTimeout(200);
+      // Should show "Saving..." text
+      await expect(saveButton).toContainText('Saving');
     }
   });
 
@@ -171,46 +172,44 @@ test.describe('Save & Reboot Workflow E2E Tests', () => {
       });
     });
 
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1500);
 
     // Make changes
-    await page.getByLabel('Device Manager Key').clear();
-    await page.getByLabel('Device Manager Key').fill('test-error');
+    await page.getByPlaceholder('DM-1').clear();
+    await page.getByPlaceholder('DM-1').fill('test-error');
     await page.waitForTimeout(500);
 
-    // Click Save & Reboot
-    await page.getByRole('button', { name: /save & reboot/i }).click();
-    await page.getByRole('dialog').getByRole('button', { name: /save & reboot/i }).click();
+    // Click Save button
+    await page.getByTestId('save-button').click();
+    await page.getByTestId('dialog-confirm').click();
 
     // Should show error notification
     await expect(page.getByText(/error/i)).toBeVisible({ timeout: 5000 });
   });
 
-  test('should maintain workflow state across page reloads', async ({ page }) => {
+  test('should maintain data across tab switches', async ({ page }) => {
     await page.waitForTimeout(1500);
 
     // Verify initial state - Devices tab should be visible
-    await expect(page.getByLabel('Device Manager Key')).toBeVisible();
+    await expect(page.getByPlaceholder('DM-1')).toBeVisible();
     
     // Switch to Config Properties
-    await page.getByRole('tab', { name: /config properties/i }).click();
-    await page.waitForTimeout(1000);
-    await expect(page.getByLabel('MQTT Broker IP')).toBeVisible();
+    await page.getByTestId('tab-config').click();
+    await page.waitForTimeout(1500);
+    await expect(page.getByPlaceholder('192.168.1.100')).toBeVisible();
 
     // Switch to Network Config
-    await page.getByRole('tab', { name: /network config/i }).click();
-    await page.waitForTimeout(1000);
-    await expect(page.getByLabel('Interface Name')).toBeVisible();
+    await page.getByTestId('tab-network').click();
+    await page.waitForTimeout(1500);
+    await expect(page.getByRole('heading', { name: 'Network Interface Configuration' })).toBeVisible();
 
     // Switch back to Devices - should reload from backend
-    await page.getByRole('tab', { name: /^devices$/i }).first().click();
-    await page.waitForTimeout(1000);
+    await page.getByTestId('tab-devices').click();
+    await page.waitForTimeout(1500);
     
     // Data should be loaded from backend
-    const keyInput = page.getByLabel('Device Manager Key');
+    const keyInput = page.getByPlaceholder('DM-1');
     const value = await keyInput.inputValue();
     expect(value.length).toBeGreaterThan(0); // Should have value from backend
   });
 });
-
-

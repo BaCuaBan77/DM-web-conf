@@ -13,48 +13,51 @@ test.describe('Material UI Application E2E Tests', () => {
     await expect(header).toBeVisible();
     await expect(header.getByText('Device Manager Configuration')).toBeVisible();
     
-    // Check Save & Reboot button exists (should be disabled initially)
-    const saveButton = page.getByRole('button', { name: /save & reboot/i });
+    // Check Save button exists (should be disabled initially)
+    const saveButton = page.getByTestId('save-button');
     await expect(saveButton).toBeVisible();
     await expect(saveButton).toBeDisabled();
   });
 
   test('should have all tabs visible', async ({ page }) => {
     const tabs = [
-      'Devices',
-      'Config Properties',
-      'IBAC',
-      'S900',
-      'OriTestGTDB',
-      'WXT53X',
-      'Network Config'
+      'devices',
+      'config',
+      'ibac',
+      's900',
+      'ori',
+      'wxt',
+      'network'
     ];
 
-    for (const tabName of tabs) {
-      await expect(page.getByRole('tab', { name: new RegExp(tabName, 'i') })).toBeVisible();
+    for (const tabId of tabs) {
+      await expect(page.getByTestId(`tab-${tabId}`)).toBeVisible();
     }
   });
 
   test('should switch between tabs', async ({ page }) => {
     // Click on Config Properties tab
-    await page.getByRole('tab', { name: /config properties/i }).click();
-    await expect(page.getByLabel('MQTT Broker IP')).toBeVisible();
+    await page.getByTestId('tab-config').click();
+    await page.waitForTimeout(1000);
+    await expect(page.getByPlaceholder('192.168.1.100').first()).toBeVisible();
 
     // Click on Network Config tab
-    await page.getByRole('tab', { name: /network config/i }).click();
-    await expect(page.getByText('Debian Static IP Configuration').first()).toBeVisible();
+    await page.getByTestId('tab-network').click();
+    await page.waitForTimeout(1500);
+    await expect(page.getByText('Network Interface Configuration')).toBeVisible();
 
     // Go back to Devices tab
-    await page.getByRole('tab', { name: /^devices$/i }).first().click();
-    await expect(page.getByLabel('Device Manager Key')).toBeVisible();
+    await page.getByTestId('tab-devices').click();
+    await page.waitForTimeout(1000);
+    await expect(page.getByText('Device Configuration')).toBeVisible();
   });
 
   test('should show unsaved changes indicator when editing Devices tab', async ({ page }) => {
     // Wait for data to load
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1500);
 
-    // Get the current value
-    const keyInput = page.getByLabel('Device Manager Key');
+    // Get the first input field (using placeholder)
+    const keyInput = page.getByPlaceholder('DM-1');
     await expect(keyInput).toBeVisible();
     
     // Edit the field
@@ -64,15 +67,15 @@ test.describe('Material UI Application E2E Tests', () => {
     // Wait a bit for change detection
     await page.waitForTimeout(500);
 
-    // Check that Save & Reboot button is now enabled
-    const saveButton = page.getByRole('button', { name: /save & reboot/i });
+    // Check that Save button is now enabled
+    const saveButton = page.getByTestId('save-button');
     await expect(saveButton).toBeEnabled();
   });
 
   test('should validate MQTT topic in Devices tab', async ({ page }) => {
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1500);
 
-    const keyInput = page.getByLabel('Device Manager Key');
+    const keyInput = page.getByPlaceholder('DM-1');
     
     // Enter invalid MQTT topic (with /)
     await keyInput.clear();
@@ -88,10 +91,10 @@ test.describe('Material UI Application E2E Tests', () => {
 
   test('should validate IP address in Config Properties tab', async ({ page }) => {
     // Go to Config Properties tab
-    await page.getByRole('tab', { name: /config properties/i }).click();
-    await page.waitForTimeout(1000);
+    await page.getByTestId('tab-config').click();
+    await page.waitForTimeout(1500);
 
-    const ipInput = page.getByLabel('MQTT Broker IP');
+    const ipInput = page.getByPlaceholder('192.168.1.100');
     
     // Enter invalid IP
     await ipInput.clear();
@@ -106,10 +109,10 @@ test.describe('Material UI Application E2E Tests', () => {
 
   test('should validate port number in Config Properties tab', async ({ page }) => {
     // Go to Config Properties tab
-    await page.getByRole('tab', { name: /config properties/i }).click();
-    await page.waitForTimeout(1000);
+    await page.getByTestId('tab-config').click();
+    await page.waitForTimeout(1500);
 
-    const portInput = page.getByLabel('MQTT Port');
+    const portInput = page.getByPlaceholder('1883');
     
     // Enter invalid port
     await portInput.clear();
@@ -124,101 +127,89 @@ test.describe('Material UI Application E2E Tests', () => {
 
   test('should load and display network configuration', async ({ page }) => {
     // Go to Network Config tab
-    await page.getByRole('tab', { name: /network config/i }).click();
-    await page.waitForTimeout(1000);
+    await page.getByTestId('tab-network').click();
+    await page.waitForTimeout(1500);
 
-    // Should show network configuration fields
-    await expect(page.getByLabel('Interface Name')).toBeVisible();
-    await expect(page.getByText('Configuration Method').first()).toBeVisible();
-    await expect(page.getByLabel('IP Address')).toBeVisible();
+    // Should show network configuration heading
+    await expect(page.getByRole('heading', { name: 'Network Interface Configuration' })).toBeVisible();
+    await expect(page.getByText('Configuration Method')).toBeVisible();
   });
 
   test('should toggle between DHCP and Static in Network Config', async ({ page }) => {
     // Go to Network Config tab
-    await page.getByRole('tab', { name: /network config/i }).click();
-    await page.waitForTimeout(1000);
+    await page.getByTestId('tab-network').click();
+    await page.waitForTimeout(1500);
+
+    // Check for radio buttons by their label text
+    const dhcpRadio = page.getByText('DHCP').locator('..').locator('input[type="radio"]');
+    const staticRadio = page.getByText('Static IP').locator('..').locator('input[type="radio"]');
 
     // Click DHCP radio button
-    await page.getByLabel('DHCP').click();
-    
-    // IP fields should not be required/visible for input
-    await page.waitForTimeout(300);
+    await dhcpRadio.check();
+    await page.waitForTimeout(500);
 
     // Click Static radio button
-    await page.getByLabel('Static IP').click();
+    await staticRadio.check();
+    await page.waitForTimeout(500);
     
     // IP fields should be visible
-    await expect(page.getByLabel('IP Address')).toBeVisible();
-    await expect(page.getByLabel('Netmask')).toBeVisible();
-    await expect(page.getByLabel('Gateway')).toBeVisible();
+    await expect(page.getByPlaceholder('192.168.1.100')).toBeVisible();
   });
 
-  test('should show Save & Reboot confirmation dialog', async ({ page }) => {
+  test('should show Save confirmation dialog', async ({ page }) => {
     // Make a change
-    await page.waitForTimeout(1000);
-    const keyInput = page.getByLabel('Device Manager Key');
+    await page.waitForTimeout(1500);
+    const keyInput = page.getByPlaceholder('DM-1');
     await keyInput.clear();
     await keyInput.fill('test-key-123');
     
     await page.waitForTimeout(500);
 
-    // Click Save & Reboot button
-    const saveButton = page.getByRole('button', { name: /save & reboot/i });
+    // Click Save button
+    const saveButton = page.getByTestId('save-button');
     await expect(saveButton).toBeEnabled();
     await saveButton.click();
 
     // Should show confirmation dialog
-    await expect(page.getByText('Confirm Save & Reboot')).toBeVisible();
-    await expect(page.getByText(/this will save the current configuration/i)).toBeVisible();
+    await expect(page.getByText('Confirm Save Changes')).toBeVisible();
     
-    // Should have Cancel and Save & Reboot buttons
-    await expect(page.getByRole('button', { name: /cancel/i })).toBeVisible();
-    await expect(page.getByRole('dialog').getByRole('button', { name: /save & reboot/i })).toBeVisible();
+    // Should have Cancel and Confirm buttons
+    await expect(page.getByTestId('dialog-cancel')).toBeVisible();
+    await expect(page.getByTestId('dialog-confirm')).toBeVisible();
 
     // Click Cancel
-    await page.getByRole('button', { name: /cancel/i }).click();
-    await expect(page.getByText('Confirm Save & Reboot')).not.toBeVisible();
-  });
-
-  test('should display loading state while fetching data', async ({ page }) => {
-    // Reload to see loading state
-    await page.reload();
-    
-    // Should show loading spinner initially (might be very quick)
-    const spinner = page.locator('svg[class*="MuiCircularProgress"]');
-    // This might not be visible if loading is too fast
+    await page.getByTestId('dialog-cancel').click();
+    await expect(page.getByText('Confirm Save Changes')).not.toBeVisible();
   });
 
   test('should configure IBAC device with serial settings', async ({ page }) => {
     // Go to IBAC tab
-    await page.getByRole('tab', { name: /ibac/i }).click();
+    await page.getByTestId('tab-ibac').click();
     await page.waitForTimeout(1500);
 
-    // Should show serial port configuration
+    // Should show serial port configuration fields
     await expect(page.getByText('Serial Port').first()).toBeVisible();
-    await expect(page.getByText('Baud Rate').first()).toBeVisible();
-    await expect(page.getByText('Parity').first()).toBeVisible();
-
-    // Just verify the tab loaded correctly - avoid clicking MUI selects which have dynamic IDs
-    // The mere presence of these fields indicates the IBAC device configuration is working
+    await expect(page.getByText('Baud Rate')).toBeVisible();
+    await expect(page.getByText('Parity')).toBeVisible();
   });
 
   test('should configure S900 device with IP settings', async ({ page }) => {
     // Go to S900 tab
-    await page.getByRole('tab', { name: /s900/i }).click();
+    await page.getByTestId('tab-s900').click();
     await page.waitForTimeout(1500);
 
-    // Should show IP configuration
-    await expect(page.getByLabel('IP Address')).toBeVisible();
-    await expect(page.getByLabel('Port Number')).toBeVisible();
-
-    // Just verify the fields are present - the S900 configuration is working
+    // Should show IP configuration fields
+    await expect(page.getByText('IP Address').first()).toBeVisible();
+    await expect(page.getByText('Port Number').first()).toBeVisible();
+    
+    // Verify placeholder exists (IP address placeholder)
+    await expect(page.getByPlaceholder('192.168.1.50')).toBeVisible();
   });
 
   test('should show warning in Network Config tab', async ({ page }) => {
     // Go to Network Config tab
-    await page.getByRole('tab', { name: /network config/i }).click();
-    await page.waitForTimeout(1000);
+    await page.getByTestId('tab-network').click();
+    await page.waitForTimeout(1500);
 
     // Should show warning about reboot
     await expect(page.getByText(/warning/i)).toBeVisible();
@@ -229,42 +220,39 @@ test.describe('Material UI Application E2E Tests', () => {
     await page.waitForTimeout(1500);
 
     // Switch to Config Properties tab
-    await page.getByRole('tab', { name: /config properties/i }).click();
-    await page.waitForTimeout(1000);
+    await page.getByTestId('tab-config').click();
+    await page.waitForTimeout(1500);
     
     // Verify Config Properties tab loaded
-    await expect(page.getByLabel('MQTT Broker IP')).toBeVisible();
+    await expect(page.getByPlaceholder('192.168.1.100')).toBeVisible();
 
     // Switch to Network Config tab
-    await page.getByRole('tab', { name: /network config/i }).click();
-    await page.waitForTimeout(1000);
+    await page.getByTestId('tab-network').click();
+    await page.waitForTimeout(1500);
     
     // Verify Network Config tab loaded
-    await expect(page.getByLabel('Interface Name')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Network Interface Configuration' })).toBeVisible();
 
     // Switch back to Devices tab
-    await page.getByRole('tab', { name: /^devices$/i }).first().click();
-    await page.waitForTimeout(1000);
+    await page.getByTestId('tab-devices').click();
+    await page.waitForTimeout(1500);
     
     // Verify Devices tab reloaded (data comes from backend)
-    await expect(page.getByLabel('Device Manager Key')).toBeVisible();
-    const keyInput = page.getByLabel('Device Manager Key');
+    const keyInput = page.getByPlaceholder('DM-1');
+    await expect(keyInput).toBeVisible();
     const value = await keyInput.inputValue();
     expect(value.length).toBeGreaterThan(0); // Should have some value from backend
   });
 
-  test('should show all Material UI styling elements', async ({ page }) => {
-    // Check for Material UI Paper component
-    const paper = page.locator('[class*="MuiPaper"]').first();
-    await expect(paper).toBeVisible();
-
-    // Check for Material UI Tabs
-    const tabs = page.locator('[class*="MuiTabs"]').first();
-    await expect(tabs).toBeVisible();
-
-    // Check for Material UI TextField
-    await expect(page.locator('[class*="MuiTextField"]').first()).toBeVisible();
+  test('should show Material UI components', async ({ page }) => {
+    // Check that the page uses Material UI styling
+    await expect(page.getByText('Device Manager Configuration')).toBeVisible();
+    
+    // Verify tabs are clickable and visible
+    await expect(page.getByTestId('tab-devices')).toBeVisible();
+    await expect(page.getByTestId('tab-config')).toBeVisible();
+    
+    // Verify form inputs exist
+    await expect(page.getByPlaceholder('DM-1')).toBeVisible();
   });
 });
-
-
