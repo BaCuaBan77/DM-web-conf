@@ -29,7 +29,7 @@ describe('ConfigPropertiesTab', () => {
     vi.mocked(getConfigProperties).mockResolvedValue(mockPropertiesData);
 
     // Act
-    render(<ConfigPropertiesTab />);
+    render(<ConfigPropertiesTab onDataChange={() => {}} onValidationChange={() => {}} />);
 
     // Assert
     await waitFor(() => {
@@ -43,7 +43,7 @@ describe('ConfigPropertiesTab', () => {
   it('should validate IPv4 address - reject invalid format', async () => {
     // Arrange
     vi.mocked(getConfigProperties).mockResolvedValue(mockPropertiesData);
-    render(<ConfigPropertiesTab />);
+    render(<ConfigPropertiesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('192.168.1.100'));
 
     const karafrestInput = screen.getByLabelText(/karaf rest/i);
@@ -61,7 +61,7 @@ describe('ConfigPropertiesTab', () => {
   it('should validate IPv4 address - reject incomplete IP', async () => {
     // Arrange
     vi.mocked(getConfigProperties).mockResolvedValue(mockPropertiesData);
-    render(<ConfigPropertiesTab />);
+    render(<ConfigPropertiesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('192.168.1.100'));
 
     const mqttInput = screen.getByLabelText(/mqtt url/i);
@@ -79,7 +79,7 @@ describe('ConfigPropertiesTab', () => {
   it('should accept valid IPv4 addresses', async () => {
     // Arrange
     vi.mocked(getConfigProperties).mockResolvedValue(mockPropertiesData);
-    render(<ConfigPropertiesTab />);
+    render(<ConfigPropertiesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('192.168.1.100'));
 
     const karafrestInput = screen.getByLabelText(/karaf rest/i);
@@ -101,7 +101,7 @@ describe('ConfigPropertiesTab', () => {
     vi.mocked(getConfigProperties).mockResolvedValue(mockPropertiesData);
     vi.mocked(saveConfigProperties).mockResolvedValue({ success: true, message: 'Saved' });
     
-    render(<ConfigPropertiesTab />);
+    render(<ConfigPropertiesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('192.168.1.100'));
 
     const karafrestInput = screen.getByLabelText(/karaf rest/i);
@@ -125,7 +125,7 @@ describe('ConfigPropertiesTab', () => {
   it('should disable save button with invalid IP addresses', async () => {
     // Arrange
     vi.mocked(getConfigProperties).mockResolvedValue(mockPropertiesData);
-    render(<ConfigPropertiesTab />);
+    render(<ConfigPropertiesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('192.168.1.100'));
 
     const karafrestInput = screen.getByLabelText(/karaf rest/i);
@@ -146,7 +146,7 @@ describe('ConfigPropertiesTab', () => {
   it('should show validation errors in real-time', async () => {
     // Arrange
     vi.mocked(getConfigProperties).mockResolvedValue(mockPropertiesData);
-    render(<ConfigPropertiesTab />);
+    render(<ConfigPropertiesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('192.168.1.100'));
 
     const karafrestInput = screen.getByLabelText(/karaf rest/i);

@@ -34,7 +34,7 @@ describe('DeviceTab - IBAC', () => {
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
 
     // Act
-    render(<DeviceTab deviceName="IBAC" />);
+    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
 
     // Assert
     await waitFor(() => {
@@ -49,7 +49,7 @@ describe('DeviceTab - IBAC', () => {
   it('should restrict address dropdown to valid options', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
-    render(<DeviceTab deviceName="IBAC" />);
+    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('ttyS0'));
 
     const addressSelect = screen.getByLabelText(/address/i) as HTMLSelectElement;
@@ -63,7 +63,7 @@ describe('DeviceTab - IBAC', () => {
   it('should restrict speed dropdown to valid baud rates', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
-    render(<DeviceTab deviceName="IBAC" />);
+    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('9600'));
 
     const speedSelect = screen.getByLabelText(/speed/i) as HTMLSelectElement;
@@ -81,7 +81,7 @@ describe('DeviceTab - IBAC', () => {
   it('should restrict serialPortType dropdown to RS232/RS485', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
-    render(<DeviceTab deviceName="IBAC" />);
+    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('RS232'));
 
     const typeSelect = screen.getByLabelText(/serial port type/i) as HTMLSelectElement;
@@ -97,7 +97,7 @@ describe('DeviceTab - IBAC', () => {
   it('should validate device name - max 50 characters', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
-    render(<DeviceTab deviceName="IBAC" />);
+    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('IBAC Device'));
 
     const nameInput = screen.getByLabelText(/name/i);
@@ -115,7 +115,7 @@ describe('DeviceTab - IBAC', () => {
   it('should accept spaces in device name', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
-    render(<DeviceTab deviceName="IBAC" />);
+    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('IBAC Device'));
 
     const nameInput = screen.getByLabelText(/name/i);
@@ -137,7 +137,7 @@ describe('DeviceTab - IBAC', () => {
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
     vi.mocked(saveDeviceConfig).mockResolvedValue({ success: true, message: 'Saved' });
     
-    render(<DeviceTab deviceName="IBAC" />);
+    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('ttyS0'));
 
     const addressSelect = screen.getByLabelText(/address/i);
@@ -173,7 +173,7 @@ describe('DeviceTab - S900', () => {
     vi.mocked(getDeviceConfig).mockResolvedValue(mockS900Data);
 
     // Act
-    render(<DeviceTab deviceName="S900" />);
+    render(<DeviceTab deviceName="S900" onDataChange={() => {}} onValidationChange={() => {}} />);
 
     // Assert
     await waitFor(() => {
@@ -188,7 +188,7 @@ describe('DeviceTab - S900', () => {
   it('should validate S900 address as IPv4', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockS900Data);
-    render(<DeviceTab deviceName="S900" />);
+    render(<DeviceTab deviceName="S900" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('192.168.1.50'));
 
     const addressInput = screen.getByLabelText(/address/i);
@@ -208,7 +208,7 @@ describe('DeviceTab - S900', () => {
   it('should validate port number - reject out of range', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockS900Data);
-    render(<DeviceTab deviceName="S900" />);
+    render(<DeviceTab deviceName="S900" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('502'));
 
     const portInput = screen.getByLabelText(/port number/i);
@@ -226,7 +226,7 @@ describe('DeviceTab - S900', () => {
   it('should accept valid port number in range 1-65535', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockS900Data);
-    render(<DeviceTab deviceName="S900" />);
+    render(<DeviceTab deviceName="S900" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('502'));
 
     const portInput = screen.getByLabelText(/port number/i);
@@ -244,7 +244,7 @@ describe('DeviceTab - S900', () => {
   it('should disable save button with invalid port number', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockS900Data);
-    render(<DeviceTab deviceName="S900" />);
+    render(<DeviceTab deviceName="S900" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('502'));
 
     const portInput = screen.getByLabelText(/port number/i);
@@ -276,7 +276,7 @@ describe('DeviceTab - oritestgtdb', () => {
     vi.mocked(getDeviceConfig).mockResolvedValue(mockOritestgtdbData);
 
     // Act
-    render(<DeviceTab deviceName="oritestgtdb" />);
+    render(<DeviceTab deviceName="oritestgtdb" onDataChange={() => {}} onValidationChange={() => {}} />);
 
     // Assert
     await waitFor(() => {
@@ -288,7 +288,7 @@ describe('DeviceTab - oritestgtdb', () => {
   it('should validate oritestgtdb address as IPv4', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockOritestgtdbData);
-    render(<DeviceTab deviceName="oritestgtdb" />);
+    render(<DeviceTab deviceName="oritestgtdb" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('192.168.1.60'));
 
     const addressInput = screen.getByLabelText(/address/i);
