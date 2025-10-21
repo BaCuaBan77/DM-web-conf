@@ -1,7 +1,7 @@
 {
-  "address": "192.168.1.50",
-  "portNumber": 21012,
-  "name": "Test S900 Device",
-  "internalId": "s900_001"
+  "deviceType" : "S900",
+  "address" : "192.168.1.50",
+  "name" : "Updated S900 Device",
+  "portNumber" : 8080,
+  "enabled" : true
 }
-
