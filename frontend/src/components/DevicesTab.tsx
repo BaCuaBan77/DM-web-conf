@@ -42,13 +42,15 @@ const DevicesTab = forwardRef((props: DevicesTabProps, ref) => {
     }
   }, []);
 
-  // Save current state to context whenever it changes
+  // Save current state to context whenever it changes (only after data is loaded)
   useEffect(() => {
-    setConfigData('devices', {
-      key: deviceManagerKey,
-      name: deviceManagerName,
-      _original: originalData
-    } as any);
+    if (originalData !== null) {
+      setConfigData('devices', {
+        key: deviceManagerKey,
+        name: deviceManagerName,
+        _original: originalData
+      } as any);
+    }
   }, [deviceManagerKey, deviceManagerName, originalData]);
 
   useEffect(() => {

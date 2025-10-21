@@ -84,12 +84,14 @@ const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
     }
   }, [deviceName]);
 
-  // Save current state to context whenever it changes
+  // Save current state to context whenever it changes (only after data is loaded)
   useEffect(() => {
-    setConfigData(contextKey, {
-      ...config,
-      _original: originalData
-    });
+    if (originalData !== null) {
+      setConfigData(contextKey, {
+        ...config,
+        _original: originalData
+      });
+    }
   }, [config, originalData, contextKey]);
 
   useEffect(() => {

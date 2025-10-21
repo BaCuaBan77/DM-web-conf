@@ -64,16 +64,18 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
     }
   }, []);
 
-  // Save current state to context whenever it changes
+  // Save current state to context whenever it changes (only after data is loaded)
   useEffect(() => {
-    setConfigData('network', {
-      interface: interfaceName,
-      method,
-      address,
-      netmask,
-      gateway,
-      _original: originalData // Preserve original data for change detection
-    });
+    if (originalData !== null) {
+      setConfigData('network', {
+        interface: interfaceName,
+        method,
+        address,
+        netmask,
+        gateway,
+        _original: originalData // Preserve original data for change detection
+      });
+    }
   }, [method, interfaceName, address, netmask, gateway, originalData]);
 
   const loadData = async () => {

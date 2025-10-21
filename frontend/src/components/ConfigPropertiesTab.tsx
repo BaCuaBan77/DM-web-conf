@@ -48,15 +48,17 @@ const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) =>
     }
   }, []);
 
-  // Save current state to context whenever it changes
+  // Save current state to context whenever it changes (only after data is loaded)
   useEffect(() => {
-    setConfigData('config', {
-      broker: mqttBroker,
-      port: mqttPort,
-      username: mqttUsername,
-      password: mqttPassword,
-      _original: originalData
-    } as any);
+    if (originalData !== null) {
+      setConfigData('config', {
+        broker: mqttBroker,
+        port: mqttPort,
+        username: mqttUsername,
+        password: mqttPassword,
+        _original: originalData
+      } as any);
+    }
   }, [mqttBroker, mqttPort, mqttUsername, mqttPassword, originalData]);
 
   useEffect(() => {
