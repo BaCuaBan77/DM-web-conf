@@ -1,0 +1,6 @@
+/Users/observis/DM-web-conf/backend/src/main/java/com/observis/dmconfig/DmConfigApplication.java
+/Users/observis/DM-web-conf/backend/src/main/java/com/observis/dmconfig/validation/ValidationService.java
+/Users/observis/DM-web-conf/backend/src/main/java/com/observis/dmconfig/controller/ConfigController.java
+/Users/observis/DM-web-conf/backend/src/main/java/com/observis/dmconfig/service/ConfigService.java
+/Users/observis/DM-web-conf/backend/src/main/java/com/observis/dmconfig/service/RebootService.java
+/Users/observis/DM-web-conf/backend/src/main/java/com/observis/dmconfig/service/FileService.java

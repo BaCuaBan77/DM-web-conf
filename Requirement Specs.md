@@ -89,7 +89,7 @@ The web interface will itself run in a **Docker container**, exposed on port **8
 #### **devices.json**
 | Property | Type | Validation | Description |
 |-----------|------|-------------|-------------|
-| `deviceManagerKey` | String | Max 20 chars, no spaces | MQTT topic identifier |
+| `deviceManagerKey` | String | Max 20 chars, no `/`, `#`, or `+` | MQTT topic identifier |
 | `deviceManagerName` | String | Max 50 chars, may include spaces | Friendly display name |
 
 #### **config.properties**

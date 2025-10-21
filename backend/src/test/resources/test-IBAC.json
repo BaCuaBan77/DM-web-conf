@@ -1,0 +1,12 @@
+{
+  "address": "ttyS0",
+  "speed": "9600",
+  "bits": "8",
+  "stopBits": "1",
+  "parity": "None",
+  "serialPortType": "RS232",
+  "name": "Test IBAC Device",
+  "internalConfig": "not editable",
+  "deviceType": "IBAC"
+}
+

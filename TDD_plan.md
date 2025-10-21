@@ -21,7 +21,7 @@
 | Feature                                                                            | Test Case                                                        | Expected Outcome                                                         | Priority |
 | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------ | -------- |
 | Read `devices.json`                                                                | Read `deviceManagerKey` and `deviceManagerName`                  | JSON object returned with correct keys                                   | High     |
-| Validate `deviceManagerKey`                                                        | Input contains spaces, invalid MQTT characters, or >20 chars     | Validation fails; API returns error                                      | High     |
+| Validate `deviceManagerKey`                                                        | Input contains `/`, `#`, `+` characters, or >20 chars            | Validation fails; API returns error                                      | High     |
 | Validate `deviceManagerName`                                                       | Input >50 chars                                                  | Validation fails                                                         | Medium   |
 | Read `config.properties`                                                           | Parse `fi.observis.sas.karafrest` and `fi.observis.sas.mqtt.url` | Properties object returned with correct keys and values                  | High     |
 | Validate MQTT IP fields                                                            | Invalid IP formats                                               | Validation fails                                                         | High     |
@@ -74,7 +74,7 @@
 
 | File                  | Editable Fields                                         | Validation Rules                                                                                                      |
 | --------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| **devices.json**      | `deviceManagerKey`                                      | max 20 chars, valid MQTT topic characters only (letters, numbers, underscores `_`, slashes `/`); no spaces or `#`/`+` |
+| **devices.json**      | `deviceManagerKey`                                      | max 20 chars, no forward slashes `/`, hash `#`, or plus `+` characters allowed                                        |
 |                       | `deviceManagerName`                                     | max 50 chars, spaces allowed                                                                                          |
 | **config.properties** | `fi.observis.sas.karafrest`, `fi.observis.sas.mqtt.url` | valid IPv4 addresses; parse as properties key-value pairs                                                             |
 | **IBAC.json**         | `address`                                               | dropdown: `ttyS0`,`ttyS1`                                                                                             |
@@ -89,17 +89,17 @@
 |                       | `name`                                                  | max 50 chars                                                                                                          |
 | **wxt53x.json**       | same as IBAC.json                                       | same rules                                                                                                            |
 
-* **Frontend**: real-time validation for text boxes, including MQTT topic validation.
+* **Frontend**: real-time validation for text boxes. MQTT topic validation rejects `/`, `#`, and `+` characters.
 * **Backend**: final validation before saving; `config.properties` handled as key-value properties.
 
 ---
 
 ## 5. TDD Development Order
 
-1. **Backend core**: file read/write and validation (JSON + properties, including MQTT topic validation).
+1. **Backend core**: file read/write and validation (JSON + properties, including MQTT topic validation - no `/`, `#`, `+`).
 2. **Backend API endpoints**: REST controllers.
 3. **Frontend tabs and input forms**: load data correctly.
-4. **Frontend validation**: text boxes + dropdowns + MQTT topic rules.
+4. **Frontend validation**: text boxes + dropdowns + MQTT topic rules (reject `/`, `#`, `+`).
 5. **Save workflow**: frontend → backend → file overwrite.
 6. **Reboot workflow**: backend triggers reboot script.
 7. **Integration tests**: end-to-end workflow.

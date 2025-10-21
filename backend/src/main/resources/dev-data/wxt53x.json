@@ -1,0 +1,12 @@
+{
+  "address": "ttyS1",
+  "speed": "19200",
+  "bits": "8",
+  "stopBits": "1",
+  "parity": "Even",
+  "serialPortType": "RS485",
+  "name": "Development WXT53X Weather Station",
+  "sensorType": "weather",
+  "enabled": true
+}
+

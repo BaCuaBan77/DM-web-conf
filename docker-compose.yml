@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dm-config-backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - /opt/dm:/opt/dm
+      - /opt/dm/scripts:/opt/dm/scripts
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+    networks:
+      - dm-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dm-config-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - dm-network
+    restart: unless-stopped
+
+networks:
+  dm-network:
+    driver: bridge
+
