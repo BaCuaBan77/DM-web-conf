@@ -74,9 +74,10 @@ const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
   useEffect(() => {
     const contextData = configData[contextKey];
     if (contextData !== null) {
-      // Restore from context
-      setConfig(contextData);
-      setOriginalData((contextData as any)._original || contextData);
+      // Restore from context - exclude _original from config
+      const { _original, ...configWithoutOriginal } = contextData as any;
+      setConfig(configWithoutOriginal);
+      setOriginalData(_original || configWithoutOriginal);
       setLoading(false);
     } else {
       // Load from API

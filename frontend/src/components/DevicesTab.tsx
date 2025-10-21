@@ -32,9 +32,10 @@ const DevicesTab = forwardRef((props: DevicesTabProps, ref) => {
   useEffect(() => {
     if (configData.devices !== null) {
       // Restore from context
-      setDeviceManagerKey(configData.devices.key || '');
-      setDeviceManagerName(configData.devices.name || '');
-      setOriginalData((configData.devices as any)._original || configData.devices);
+      const { _original, ...deviceData } = configData.devices as any;
+      setDeviceManagerKey(deviceData.key || '');
+      setDeviceManagerName(deviceData.name || '');
+      setOriginalData(_original || deviceData);
       setLoading(false);
     } else {
       // Load from API

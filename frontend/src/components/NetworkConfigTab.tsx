@@ -49,14 +49,15 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
   // Restore state from context when component mounts
   useEffect(() => {
     if (configData.network !== null) {
-      // Restore from context
-      setInterfaceName(configData.network.interface || 'eth0');
-      setMethod(configData.network.method || 'static');
-      setAddress(configData.network.address || '');
-      setNetmask(configData.network.netmask || '');
-      setGateway(configData.network.gateway || '');
+      // Restore from context - exclude _original from state
+      const { _original, ...networkData } = configData.network as any;
+      setInterfaceName(networkData.interface || 'eth0');
+      setMethod(networkData.method || 'static');
+      setAddress(networkData.address || '');
+      setNetmask(networkData.netmask || '');
+      setGateway(networkData.gateway || '');
       // Use the stored original data for change detection
-      setOriginalData(configData.network._original || configData.network);
+      setOriginalData(_original || networkData);
       setLoading(false);
     } else {
       // Load from API

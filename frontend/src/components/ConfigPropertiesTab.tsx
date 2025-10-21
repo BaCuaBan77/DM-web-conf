@@ -35,12 +35,13 @@ const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) =>
   // Restore state from context when component mounts
   useEffect(() => {
     if (configData.config !== null) {
-      // Restore from context
-      setMqttBroker(configData.config.broker || '');
-      setMqttPort(configData.config.port || '');
-      setMqttUsername(configData.config.username || '');
-      setMqttPassword(configData.config.password || '');
-      setOriginalData((configData.config as any)._original || configData.config);
+      // Restore from context - exclude _original from state
+      const { _original, ...configProps } = configData.config as any;
+      setMqttBroker(configProps.broker || '');
+      setMqttPort(configProps.port || '');
+      setMqttUsername(configProps.username || '');
+      setMqttPassword(configProps.password || '');
+      setOriginalData(_original || configProps);
       setLoading(false);
     } else {
       // Load from API
