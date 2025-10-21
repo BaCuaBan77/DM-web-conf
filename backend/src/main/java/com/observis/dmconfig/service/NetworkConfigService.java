@@ -97,13 +97,14 @@ public class NetworkConfigService {
         config.put("gateway", "");
 
         String[] lines = content.split("\n");
-        boolean inEth0Block = false;
+        boolean inInterfaceBlock = false;
 
         for (String line : lines) {
             line = line.trim();
             
-            if (line.startsWith("iface eth0") || line.startsWith("iface enp")) {
-                inEth0Block = true;
+            // Match any interface except loopback (lo)
+            if (line.startsWith("iface ") && !line.startsWith("iface lo")) {
+                inInterfaceBlock = true;
                 if (line.contains("inet")) {
                     if (line.contains("dhcp")) {
                         config.put("method", "dhcp");
@@ -111,12 +112,12 @@ public class NetworkConfigService {
                         config.put("method", "static");
                     }
                 }
-                // Extract actual interface name
+                // Extract actual interface name from the file
                 String[] parts = line.split("\\s+");
                 if (parts.length > 1) {
                     config.put("interface", parts[1]);
                 }
-            } else if (inEth0Block) {
+            } else if (inInterfaceBlock) {
                 if (line.startsWith("address")) {
                     String[] parts = line.split("\\s+");
                     if (parts.length > 1) {
@@ -133,7 +134,7 @@ public class NetworkConfigService {
                         config.put("gateway", parts[1]);
                     }
                 } else if (line.isEmpty() || line.startsWith("iface") || line.startsWith("auto")) {
-                    inEth0Block = false;
+                    inInterfaceBlock = false;
                 }
             }
         }
