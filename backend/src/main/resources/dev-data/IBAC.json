@@ -1,12 +1,21 @@
 {
-  "address": "ttyS0",
-  "speed": "9600",
-  "bits": "8",
-  "stopBits": "1",
-  "parity": "None",
-  "serialPortType": "RS232",
-  "name": "Development IBAC Device",
-  "deviceType": "IBAC",
-  "enabled": true
+  "serialDeviceConfiguration": {
+    "deviceMainType": "IBAC2",
+    "measPoints": [],
+    "deviceKey": "IBAC2",
+    "deviceMeasType": "BIO",
+    "name": "BIO", 
+    "categoryName": "Bunker",
+    "description": "IBAC2",
+    "connectionType": "SERIAL",
+    "address": "/dev/ttyS0",
+    "speed": 57600,
+    "bits": 8,
+    "stopBits": 1,
+    "parity": "N",
+    "serialPortType": "RS232",
+    "deviceModel": 200,
+    "phenomenons": {},
+    "physicalDeviceModelId": 200
+  }
 }
-

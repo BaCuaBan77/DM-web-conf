@@ -142,21 +142,124 @@ public class ConfigService {
 
     /**
      * Get device-specific configuration
+     * Extracts nested configuration and returns simplified format for UI
      */
     public JsonNode getDeviceConfig(String deviceName) throws IOException {
         String devicePath = devicesDir + deviceName + ".json";
-        return fileService.readJsonFile(devicePath);
+        JsonNode fullConfig = fileService.readJsonFile(devicePath);
+        
+        // Extract nested configuration for UI
+        return extractSimplifiedConfig(deviceName, fullConfig);
+    }
+    
+    /**
+     * Extract simplified configuration from nested structure
+     */
+    private JsonNode extractSimplifiedConfig(String deviceName, JsonNode fullConfig) {
+        ObjectNode simplified = objectMapper.createObjectNode();
+        
+        // Check for serialDeviceConfiguration (IBAC, WXT53X)
+        if (fullConfig.has("serialDeviceConfiguration")) {
+            JsonNode config = fullConfig.get("serialDeviceConfiguration");
+            simplified.put("address", config.path("address").asText(""));
+            simplified.put("speed", config.path("speed").asText(""));
+            simplified.put("bits", config.path("bits").asText(""));
+            simplified.put("stopBits", config.path("stopBits").asText(""));
+            simplified.put("parity", config.path("parity").asText(""));
+            simplified.put("serialPortType", config.path("serialPortType").asText(""));
+            simplified.put("name", config.path("name").asText(""));
+            simplified.put("enabled", config.path("enabled").asBoolean(true));
+        }
+        // Check for networkDeviceConfiguration (S900, Oritest)
+        else if (fullConfig.has("networkDeviceConfiguration")) {
+            JsonNode config = fullConfig.get("networkDeviceConfiguration");
+            simplified.put("address", config.path("address").asText(""));
+            simplified.put("portNumber", config.path("portNumber").asText(""));
+            simplified.put("name", config.path("name").asText(""));
+            simplified.put("enabled", config.path("enabled").asBoolean(true));
+        }
+        // Fallback: return as-is for simple format
+        else {
+            return fullConfig;
+        }
+        
+        return simplified;
     }
 
     /**
      * Save device-specific configuration
+     * Merges simplified UI format back into nested structure
      */
     public void saveDeviceConfig(String deviceName, JsonNode config) throws IOException {
-        // Validate based on device type
+        // Validate the simplified config
         validateDeviceConfig(deviceName, config);
 
         String devicePath = devicesDir + deviceName + ".json";
-        fileService.writeJsonFile(devicePath, config);
+        
+        // Read existing full configuration
+        JsonNode existingConfig = fileService.readJsonFile(devicePath);
+        
+        // Merge simplified config into nested structure
+        JsonNode mergedConfig = mergeIntoNestedConfig(deviceName, existingConfig, config);
+        
+        // Write merged configuration back
+        fileService.writeJsonFile(devicePath, mergedConfig);
+    }
+    
+    /**
+     * Merge simplified UI config into nested structure, preserving other fields
+     */
+    private JsonNode mergeIntoNestedConfig(String deviceName, JsonNode existing, JsonNode simplified) {
+        ObjectNode result = (ObjectNode) existing.deepCopy();
+        
+        // Check for serialDeviceConfiguration (IBAC, WXT53X)
+        if (result.has("serialDeviceConfiguration")) {
+            ObjectNode config = (ObjectNode) result.get("serialDeviceConfiguration");
+            if (simplified.has("address")) config.put("address", simplified.get("address").asText());
+            if (simplified.has("speed")) {
+                // Convert string to number
+                String speedStr = simplified.get("speed").asText();
+                try {
+                    config.put("speed", Integer.parseInt(speedStr));
+                } catch (NumberFormatException e) {
+                    config.put("speed", speedStr);
+                }
+            }
+            if (simplified.has("bits")) {
+                String bitsStr = simplified.get("bits").asText();
+                try {
+                    config.put("bits", Integer.parseInt(bitsStr));
+                } catch (NumberFormatException e) {
+                    config.put("bits", bitsStr);
+                }
+            }
+            if (simplified.has("stopBits")) {
+                String stopBitsStr = simplified.get("stopBits").asText();
+                try {
+                    config.put("stopBits", Integer.parseInt(stopBitsStr));
+                } catch (NumberFormatException e) {
+                    config.put("stopBits", stopBitsStr);
+                }
+            }
+            if (simplified.has("parity")) config.put("parity", simplified.get("parity").asText());
+            if (simplified.has("serialPortType")) config.put("serialPortType", simplified.get("serialPortType").asText());
+            if (simplified.has("name")) config.put("name", simplified.get("name").asText());
+            if (simplified.has("enabled")) config.put("enabled", simplified.get("enabled").asBoolean());
+        }
+        // Check for networkDeviceConfiguration (S900, Oritest)
+        else if (result.has("networkDeviceConfiguration")) {
+            ObjectNode config = (ObjectNode) result.get("networkDeviceConfiguration");
+            if (simplified.has("address")) config.put("address", simplified.get("address").asText());
+            if (simplified.has("portNumber")) config.put("portNumber", simplified.get("portNumber").asText());
+            if (simplified.has("name")) config.put("name", simplified.get("name").asText());
+            if (simplified.has("enabled")) config.put("enabled", simplified.get("enabled").asBoolean());
+        }
+        // Fallback: return simplified config as-is
+        else {
+            return simplified;
+        }
+        
+        return result;
     }
 
     /**
