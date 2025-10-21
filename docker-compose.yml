@@ -12,7 +12,7 @@ services:
       - /opt/dm:/opt/dm
       - /opt/dm/scripts:/opt/dm/scripts
     environment:
-      - SPRING_PROFILES_ACTIVE=production
+      - SPRING_PROFILES_ACTIVE=prod
     networks:
       - dm-network
     restart: unless-stopped
