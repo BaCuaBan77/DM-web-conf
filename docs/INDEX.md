@@ -22,6 +22,12 @@ Welcome to the Device Manager Web Configuration documentation!
   - Testing
   - Contributing guidelines
 
+- **[CI/CD Setup Guide](guides/ci-cd-setup.md)** - GitHub Actions automation
+  - Automated testing on every commit
+  - Docker image building and publishing
+  - Deployment workflows
+  - Setup instructions
+
 ### Technical Reference
 
 - **[API Documentation](API.md)** - REST API reference
@@ -73,7 +79,8 @@ docs/
 │
 ├── guides/                       # User and developer guides
 │   ├── quick-start-guide.md      # Getting started (5 min)
-│   └── development-guide.md      # Developer documentation
+│   ├── development-guide.md      # Developer documentation
+│   └── ci-cd-setup.md            # CI/CD automation guide
 │
 ├── testing/                      # Testing documentation
 │   ├── e2e-test-guide.md         # E2E testing guide
@@ -105,10 +112,11 @@ Start here to learn how to use the system:
 Start here to contribute to the project:
 
 1. **[Development Guide](guides/development-guide.md)** - Setup your environment
-2. **[TDD Plan](testing/tdd-plan.md)** - Understand the testing approach
-3. **[E2E Testing Guide](testing/e2e-test-guide.md)** - Learn how to test
-4. **[API Documentation](API.md)** - API reference
-5. **[Architecture](architecture/)** - Understand the design
+2. **[CI/CD Setup Guide](guides/ci-cd-setup.md)** - Configure automated workflows
+3. **[TDD Plan](testing/tdd-plan.md)** - Understand the testing approach
+4. **[E2E Testing Guide](testing/e2e-test-guide.md)** - Learn how to test
+5. **[API Documentation](API.md)** - API reference
+6. **[Architecture](architecture/)** - Understand the design
 
 ### For Architects/Designers
 

@@ -8,6 +8,11 @@
 [![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue.svg)](https://www.typescriptlang.org/)
 
+<!-- Add your GitHub workflow badges here after pushing to GitHub:
+[![Test Suite](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/test.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/test.yml)
+[![Docker Build](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/docker-build-push.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/docker-build-push.yml)
+-->
+
 ---
 
 ## 📋 Overview
@@ -629,6 +634,49 @@ npm install
 - Production: Requires `/opt/dm/` files and Docker volumes
 
 📖 **More Troubleshooting:** See [Quick Start Guide](docs/guides/quick-start-guide.md#troubleshooting)
+
+---
+
+## 🔄 CI/CD
+
+### Automated Testing
+
+Every commit triggers automated tests:
+- ✅ Backend unit tests (JUnit 5)
+- ✅ Frontend unit tests (Vitest)
+- ✅ E2E tests (Playwright)
+- ✅ Integration tests
+- ✅ Code quality checks
+
+### Docker Image Publishing
+
+Pushes to `main` branch automatically:
+- 🐳 Build Docker images
+- 📤 Push to Docker Hub
+  - `<username>/dm-conf-backend:latest`
+  - `<username>/dm-conf-frontend:latest`
+- 🏷️ Tag with version and git SHA
+
+### Setup CI/CD
+
+**1. Configure GitHub Secrets:**
+- `DOCKER_USERNAME` - Your Docker Hub username
+- `DOCKER_PASSWORD` - Your Docker Hub access token
+
+**2. Enable Workflows:**
+
+Workflows are in `.github/workflows/`:
+- `test.yml` - Run tests on every commit
+- `docker-build-push.yml` - Build and push Docker images
+
+**3. Pull Published Images:**
+
+```bash
+docker pull <your-username>/dm-conf-backend:latest
+docker pull <your-username>/dm-conf-frontend:latest
+```
+
+📖 **Complete CI/CD Guide:** See [`docs/guides/ci-cd-setup.md`](docs/guides/ci-cd-setup.md)
 
 ---
 
