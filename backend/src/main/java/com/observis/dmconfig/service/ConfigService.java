@@ -72,24 +72,72 @@ public class ConfigService {
 
     /**
      * Save config.properties
+     * Handles both simple format (mqtt.broker, mqtt.port) and full format (fi.observis.sas.mqtt.url)
      */
     public void saveConfigProperties(Map<String, String> configMap) throws IOException {
-        // Validate IP addresses
-        String karafrest = configMap.get("fi.observis.sas.karafrest");
-        String mqttUrl = configMap.get("fi.observis.sas.mqtt.url");
-
-        if (karafrest != null && !validationService.validateIPv4(karafrest)) {
-            throw new IllegalArgumentException("Invalid IP address for fi.observis.sas.karafrest");
+        // Read existing properties to preserve all fields
+        Properties properties = fileService.readPropertiesFile(configPropertiesPath);
+        
+        // Check if we're receiving simplified format (from frontend)
+        if (configMap.containsKey("mqtt.broker") && configMap.containsKey("mqtt.port")) {
+            String broker = configMap.get("mqtt.broker");
+            String port = configMap.get("mqtt.port");
+            String username = configMap.get("mqtt.username");
+            String password = configMap.get("mqtt.password");
+            
+            // Validate
+            if (!validationService.validateIPv4(broker)) {
+                throw new IllegalArgumentException("Invalid MQTT broker IP address");
+            }
+            if (!validationService.validatePortNumber(Integer.parseInt(port))) {
+                throw new IllegalArgumentException("Invalid MQTT port number");
+            }
+            
+            // Update fi.observis.sas.mqtt.url with new IP and port
+            String mqttUrl = String.format("tcp://%s:%s", broker, port);
+            properties.setProperty("fi.observis.sas.mqtt.url", mqttUrl);
+            
+            // Update username and password if provided
+            if (username != null && !username.isEmpty()) {
+                properties.setProperty("fi.observis.sas.mqtt.username", username);
+            }
+            if (password != null && !password.isEmpty()) {
+                properties.setProperty("fi.observis.sas.mqtt.password", password);
+            }
+        } else {
+            // Direct property update
+            properties.putAll(configMap);
         }
-
-        if (mqttUrl != null && !validationService.validateIPv4(mqttUrl)) {
-            throw new IllegalArgumentException("Invalid IP address for fi.observis.sas.mqtt.url");
-        }
-
-        Properties properties = new Properties();
-        properties.putAll(configMap);
         
         fileService.writePropertiesFile(configPropertiesPath, properties);
+    }
+    
+    /**
+     * Extract MQTT broker IP from fi.observis.sas.mqtt.url
+     */
+    private String extractMqttBroker(String mqttUrl) {
+        if (mqttUrl == null) return "";
+        // Format: tcp://192.168.26.5:1883
+        try {
+            String[] parts = mqttUrl.replace("tcp://", "").split(":");
+            return parts.length > 0 ? parts[0] : "";
+        } catch (Exception e) {
+            return "";
+        }
+    }
+    
+    /**
+     * Extract MQTT port from fi.observis.sas.mqtt.url
+     */
+    private String extractMqttPort(String mqttUrl) {
+        if (mqttUrl == null) return "1883";
+        // Format: tcp://192.168.26.5:1883
+        try {
+            String[] parts = mqttUrl.replace("tcp://", "").split(":");
+            return parts.length > 1 ? parts[1] : "1883";
+        } catch (Exception e) {
+            return "1883";
+        }
     }
 
     /**

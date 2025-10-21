@@ -13,6 +13,8 @@ const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) =>
   const { onDataChange, onValidationChange } = props;
   const [mqttBroker, setMqttBroker] = useState('');
   const [mqttPort, setMqttPort] = useState('');
+  const [mqttUsername, setMqttUsername] = useState('');
+  const [mqttPassword, setMqttPassword] = useState('');
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [originalData, setOriginalData] = useState<any>(null);
@@ -21,7 +23,9 @@ const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) =>
   useImperativeHandle(ref, () => ({
     getData: () => ({
       'mqtt.broker': mqttBroker,
-      'mqtt.port': mqttPort
+      'mqtt.port': mqttPort,
+      'mqtt.username': mqttUsername,
+      'mqtt.password': mqttPassword
     })
   }));
 
@@ -32,7 +36,7 @@ const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) =>
   useEffect(() => {
     validateForm();
     checkForChanges();
-  }, [mqttBroker, mqttPort]);
+  }, [mqttBroker, mqttPort, mqttUsername, mqttPassword]);
 
   const loadData = async () => {
     try {
@@ -40,6 +44,8 @@ const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) =>
       const data = await getConfigProperties();
       setMqttBroker(data['mqtt.broker'] || '');
       setMqttPort(data['mqtt.port'] || '');
+      setMqttUsername(data['mqtt.username'] || '');
+      setMqttPassword(data['mqtt.password'] || '');
       setOriginalData(data);
     } catch (error: any) {
       setMessage(`Failed to load: ${error.message}`);
@@ -53,7 +59,9 @@ const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) =>
     
     const hasChanges = 
       mqttBroker !== originalData['mqtt.broker'] ||
-      mqttPort !== originalData['mqtt.port'];
+      mqttPort !== originalData['mqtt.port'] ||
+      mqttUsername !== originalData['mqtt.username'] ||
+      mqttPassword !== originalData['mqtt.password'];
     
     onDataChange(hasChanges);
   };
@@ -155,6 +163,43 @@ const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) =>
                 }}
               />
             </Box>
+
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                MQTT Username
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="admin"
+                value={mqttUsername}
+                onChange={(e) => setMqttUsername(e.target.value)}
+                helperText="Username for MQTT broker authentication (optional)"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    bgcolor: 'white',
+                  }
+                }}
+              />
+            </Box>
+
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                MQTT Password
+              </Typography>
+              <TextField
+                fullWidth
+                type="password"
+                placeholder="••••••••"
+                value={mqttPassword}
+                onChange={(e) => setMqttPassword(e.target.value)}
+                helperText="Password for MQTT broker authentication (optional)"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    bgcolor: 'white',
+                  }
+                }}
+              />
+            </Box>
           </Box>
 
           {/* Configuration Tips Box */}
@@ -178,6 +223,7 @@ const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) =>
             <Box component="ul" sx={{ m: 0, pl: 2.5, '& li': { mb: 0.5 } }}>
               <li>Ensure the MQTT broker is accessible from this device</li>
               <li>Default MQTT port is 1883 (unencrypted) or 8883 (TLS)</li>
+              <li>Username and password are optional (required if broker uses authentication)</li>
               <li>Changes take effect after saving and restarting</li>
             </Box>
           </Alert>

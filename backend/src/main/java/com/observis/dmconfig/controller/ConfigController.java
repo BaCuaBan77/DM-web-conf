@@ -51,15 +51,42 @@ public class ConfigController {
 
     /**
      * GET /api/config/properties - Get config.properties
+     * Returns simplified format: mqtt.broker, mqtt.port, mqtt.username, mqtt.password
      */
     @GetMapping("/config/properties")
     public ResponseEntity<?> getConfigProperties() {
         try {
             Properties properties = configService.getConfigProperties();
-            // Convert Properties to Map for JSON serialization
-            Map<String, String> propertiesMap = new HashMap<>();
-            properties.forEach((key, value) -> propertiesMap.put(key.toString(), value.toString()));
-            return ResponseEntity.ok(propertiesMap);
+            
+            // Extract MQTT settings from fi.observis.sas.mqtt.url format
+            String mqttUrl = properties.getProperty("fi.observis.sas.mqtt.url", "tcp://192.168.1.100:1883");
+            String username = properties.getProperty("fi.observis.sas.mqtt.username", "");
+            String password = properties.getProperty("fi.observis.sas.mqtt.password", "");
+            
+            // Parse URL to extract broker and port
+            // Format: tcp://192.168.26.5:1883
+            String broker = "";
+            String port = "1883";
+            
+            if (mqttUrl != null && mqttUrl.startsWith("tcp://")) {
+                String address = mqttUrl.replace("tcp://", "");
+                String[] parts = address.split(":");
+                if (parts.length > 0) {
+                    broker = parts[0];
+                }
+                if (parts.length > 1) {
+                    port = parts[1];
+                }
+            }
+            
+            // Return simplified format for frontend
+            Map<String, String> response = new HashMap<>();
+            response.put("mqtt.broker", broker);
+            response.put("mqtt.port", port);
+            response.put("mqtt.username", username);
+            response.put("mqtt.password", password);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("Error reading config properties", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
