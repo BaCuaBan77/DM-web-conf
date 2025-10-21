@@ -14,6 +14,7 @@ import {
 import InfoIcon from '@mui/icons-material/Info';
 import { getNetworkConfig } from '../api/configApi';
 import { validateIPv4 } from '../utils/validation';
+import { useConfig } from '../context/ConfigContext';
 
 interface NetworkConfigTabProps {
   onDataChange: (hasChanges: boolean) => void;
@@ -22,15 +23,18 @@ interface NetworkConfigTabProps {
 
 const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
   const { onDataChange, onValidationChange } = props;
-  const [method, setMethod] = useState('static');
-  const [interfaceName, setInterfaceName] = useState('eth0');
-  const [address, setAddress] = useState('');
-  const [netmask, setNetmask] = useState('');
-  const [gateway, setGateway] = useState('');
-  const [loading, setLoading] = useState(true);
+  const { configData, setConfigData } = useConfig();
+  
+  // Initialize from context or defaults
+  const [method, setMethod] = useState(configData.network?.method || 'static');
+  const [interfaceName, setInterfaceName] = useState(configData.network?.interface || 'eth0');
+  const [address, setAddress] = useState(configData.network?.address || '');
+  const [netmask, setNetmask] = useState(configData.network?.netmask || '');
+  const [gateway, setGateway] = useState(configData.network?.gateway || '');
+  const [loading, setLoading] = useState(configData.network === null);
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [originalData, setOriginalData] = useState<any>(null);
+  const [originalData, setOriginalData] = useState<any>(configData.network);
 
   useImperativeHandle(ref, () => ({
     getData: () => ({
@@ -43,8 +47,22 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
   }));
 
   useEffect(() => {
-    loadData();
+    // Only load from API if we don't have data in context
+    if (configData.network === null) {
+      loadData();
+    }
   }, []);
+
+  // Save current state to context whenever it changes
+  useEffect(() => {
+    setConfigData('network', {
+      interface: interfaceName,
+      method,
+      address,
+      netmask,
+      gateway
+    });
+  }, [method, interfaceName, address, netmask, gateway]);
 
   const loadData = async () => {
     try {
@@ -56,6 +74,8 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
       setNetmask(data.netmask || '');
       setGateway(data.gateway || '');
       setOriginalData(data);
+      // Save to context
+      setConfigData('network', data);
     } catch (error: any) {
       setMessage(`Failed to load: ${error.message}`);
     } finally {
@@ -66,7 +86,7 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
   useEffect(() => {
     validateForm();
     checkForChanges();
-  }, [method, address, netmask, gateway, interfaceName]);
+  }, [method, address, netmask, gateway]);
 
   const checkForChanges = () => {
     if (!originalData) return;
@@ -75,8 +95,7 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
       method !== originalData.method ||
       address !== originalData.address ||
       netmask !== originalData.netmask ||
-      gateway !== originalData.gateway ||
-      interfaceName !== originalData.interface;
+      gateway !== originalData.gateway;
     
     onDataChange(hasChanges);
   };
@@ -151,22 +170,31 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
           </Alert>
 
           <Box component="form" sx={{ '& .MuiTextField-root': { mb: 3 } }}>
-            <Box>
+            <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-                Interface Name
+                Network Interface
               </Typography>
-              <TextField
-                fullWidth
-                placeholder="eth0"
-                value={interfaceName}
-                onChange={(e) => setInterfaceName(e.target.value)}
-                helperText="Network interface name (e.g., eth0, enp0s3)"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    bgcolor: 'white',
-                  }
+              <Box 
+                sx={{ 
+                  p: 2, 
+                  bgcolor: '#f9fafb', 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
                 }}
-              />
+              >
+                <Typography variant="body1" sx={{ fontWeight: 500, color: '#1f2937' }}>
+                  {interfaceName}
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#6b7280', ml: 'auto' }}>
+                  (Auto-detected)
+                </Typography>
+              </Box>
+              <Typography variant="caption" sx={{ color: '#6b7280', mt: 0.5, display: 'block' }}>
+                The network interface is automatically detected by the system
+              </Typography>
             </Box>
 
             <Box sx={{ mb: 3 }}>

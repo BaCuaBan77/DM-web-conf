@@ -149,24 +149,28 @@ public class NetworkConfigEndToEndTest {
     }
 
     @Test
-    @DisplayName("E2E: Support different interface names")
-    public void testDifferentInterfaceNames() throws Exception {
-        String[] interfaces = {"eth0", "eth1", "enp0s3", "enp0s8"};
+    @DisplayName("E2E: Interface is auto-detected (ignores provided value)")
+    public void testInterfaceAutoDetected() throws Exception {
+        // Interface field is now auto-detected by the backend
+        // The backend should ignore whatever interface value is provided
+        Map<String, String> networkConfig = new HashMap<>();
+        networkConfig.put("interface", "ignored-interface-name");
+        networkConfig.put("method", "dhcp");
+        networkConfig.put("address", "");
+        networkConfig.put("netmask", "");
+        networkConfig.put("gateway", "");
 
-        for (String iface : interfaces) {
-            Map<String, String> networkConfig = new HashMap<>();
-            networkConfig.put("interface", iface);
-            networkConfig.put("method", "dhcp");
-            networkConfig.put("address", "");
-            networkConfig.put("netmask", "");
-            networkConfig.put("gateway", "");
-
-            mockMvc.perform(post("/api/network")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(networkConfig)))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.success").value(true));
-        }
+        mockMvc.perform(post("/api/network")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(networkConfig)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+        
+        // Verify that reading config returns auto-detected interface
+        mockMvc.perform(get("/api/network"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.interface").exists())
+                .andExpect(jsonPath("$.method").value("dhcp"));
     }
 
     @Test

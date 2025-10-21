@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +38,9 @@ public class NetworkConfigService {
      * Save network configuration to /etc/network/interfaces
      */
     public void saveNetworkConfig(Map<String, String> config) throws IOException {
+        // Override interface with auto-detected one (ignore client-provided value)
+        config.put("interface", detectNetworkInterface());
+        
         // Validate IP addresses
         String address = config.get("address");
         String netmask = config.get("netmask");
@@ -58,13 +64,33 @@ public class NetworkConfigService {
     }
 
     /**
+     * Detect the primary network interface on the system
+     */
+    private String detectNetworkInterface() {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                // Skip loopback and inactive interfaces
+                if (!iface.isLoopback() && iface.isUp() && !iface.isVirtual()) {
+                    return iface.getName();
+                }
+            }
+        } catch (SocketException e) {
+            // If detection fails, fall back to eth0
+            return "eth0";
+        }
+        return "eth0"; // Fallback
+    }
+
+    /**
      * Parse network configuration from interfaces file
      */
     private Map<String, String> parseNetworkConfig(String content) {
         Map<String, String> config = new HashMap<>();
         
-        // Default values
-        config.put("interface", "eth0");
+        // Default values - detect actual interface
+        config.put("interface", detectNetworkInterface());
         config.put("method", "static");
         config.put("address", "");
         config.put("netmask", "");
@@ -128,7 +154,7 @@ public class NetworkConfigService {
         sb.append("auto lo\n");
         sb.append("iface lo inet loopback\n\n");
         
-        String iface = config.getOrDefault("interface", "eth0");
+        String iface = config.get("interface"); // Already set in saveNetworkConfig or parseNetworkConfig
         String method = config.getOrDefault("method", "static");
         
         sb.append("# The primary network interface\n");

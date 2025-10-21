@@ -34,6 +34,7 @@ import ConfigPropertiesTab from './components/ConfigPropertiesTab';
 import DeviceTab from './components/DeviceTab';
 import NetworkConfigTab from './components/NetworkConfigTab';
 import { saveData, saveDeviceConfig, saveNetworkConfig, reboot } from './api/configApi';
+import { useConfig } from './context/ConfigContext';
 import './App.css';
 
 const DRAWER_WIDTH = 256;
@@ -56,18 +57,9 @@ const theme = createTheme({
   },
 });
 
-interface TabChangeStatus {
-  [key: string]: boolean;
-}
-
-interface TabValidStatus {
-  [key: string]: boolean;
-}
-
 function App() {
+  const { hasChanges, isValid, setHasChanges, setIsValid, resetChanges } = useConfig();
   const [currentTab, setCurrentTab] = useState(0);
-  const [hasChanges, setHasChanges] = useState<TabChangeStatus>({});
-  const [isValid, setIsValid] = useState<TabValidStatus>({});
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' | 'warning' });
   const [confirmDialog, setConfirmDialog] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -124,11 +116,11 @@ function App() {
   };
 
   const handleDataChange = (tabKey: string, changed: boolean) => {
-    setHasChanges(prev => ({ ...prev, [tabKey]: changed }));
+    setHasChanges(tabKey as any, changed);
   };
 
   const handleValidationChange = (tabKey: string, valid: boolean) => {
-    setIsValid(prev => ({ ...prev, [tabKey]: valid }));
+    setIsValid(tabKey as any, valid);
   };
 
   const hasAnyChanges = () => {
@@ -138,7 +130,7 @@ function App() {
   const areAllTabsValid = () => {
     // Check all tabs that have changes - they must be valid
     for (const key in hasChanges) {
-      if (hasChanges[key] === true && isValid[key] === false) {
+      if (hasChanges[key as keyof typeof hasChanges] === true && isValid[key as keyof typeof isValid] === false) {
         return false;
       }
     }
@@ -146,13 +138,13 @@ function App() {
   };
 
   const getTabsWithChanges = () => {
-    return Object.keys(hasChanges).filter(key => hasChanges[key] === true);
+    return Object.keys(hasChanges).filter(key => hasChanges[key as keyof typeof hasChanges] === true);
   };
 
   const handleSaveAndReboot = async () => {
     // Check if all tabs with changes are valid
     if (!areAllTabsValid()) {
-      const invalidTabs = getTabsWithChanges().filter(key => isValid[key] === false);
+      const invalidTabs = getTabsWithChanges().filter(key => isValid[key as keyof typeof isValid] === false);
       const tabNames = invalidTabs.map(key => {
         const item = menuItems.find(m => m.key === key);
         return item?.label || key;
@@ -261,11 +253,7 @@ function App() {
       // All saved successfully
       if (savedTabs.length > 0) {
         // Clear change indicators for all saved tabs
-        const clearedChanges = { ...hasChanges };
-        savedTabs.forEach(key => {
-          clearedChanges[key] = false;
-        });
-        setHasChanges(clearedChanges);
+        resetChanges(savedTabs);
 
         // Trigger reboot (network config already triggers reboot automatically)
         if (!hasNetworkConfig) {
@@ -408,7 +396,7 @@ function App() {
                           fontWeight: currentTab === item.index ? 600 : 400,
                         }}
                       />
-                      {hasChanges[item.key] && (
+                      {hasChanges[item.key as keyof typeof hasChanges] && (
                         <FiberManualRecordIcon 
                           sx={{ 
                             fontSize: 8, 

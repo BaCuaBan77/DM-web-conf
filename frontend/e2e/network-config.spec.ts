@@ -13,11 +13,13 @@ test.describe('Network Configuration E2E Tests', () => {
 
   test('should load network configuration from backend', async ({ page }) => {
     // Check that fields are populated with data from backend
-    const interfaceInput = page.getByLabel('Interface Name');
+    // Interface is now auto-detected and displayed as read-only
+    await expect(page.getByText('Network Interface')).toBeVisible();
+    await expect(page.getByText('(Auto-detected)')).toBeVisible();
+    
     const addressInput = page.getByLabel('IP Address');
     const netmaskInput = page.getByLabel('Netmask');
 
-    await expect(interfaceInput).not.toHaveValue('');
     await expect(addressInput).not.toHaveValue('');
     await expect(netmaskInput).not.toHaveValue('');
   });
@@ -162,17 +164,14 @@ test.describe('Network Configuration E2E Tests', () => {
     }
   });
 
-  test('should handle interface name changes', async ({ page }) => {
-    const interfaceInput = page.getByLabel('Interface Name');
+  test('should display auto-detected interface as read-only', async ({ page }) => {
+    // Interface should be displayed but not editable
+    await expect(page.getByText('Network Interface')).toBeVisible();
+    await expect(page.getByText('(Auto-detected)')).toBeVisible();
     
-    // Change interface name
-    await interfaceInput.clear();
-    await interfaceInput.fill('enp0s3');
-    await page.waitForTimeout(500);
-
-    // Should enable save button
-    const saveButton = page.getByRole('button', { name: /save & reboot/i });
-    await expect(saveButton).toBeEnabled();
+    // Verify there's no editable input for interface name
+    const interfaceInput = page.getByLabel('Interface Name');
+    await expect(interfaceInput).not.toBeVisible();
   });
 });
 
