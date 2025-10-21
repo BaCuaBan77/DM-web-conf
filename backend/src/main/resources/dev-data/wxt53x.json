@@ -12,7 +12,7 @@
     "speed" : 19200,
     "bits" : 8,
     "stopBits" : 1,
-    "parity" : "O",
+    "parity" : "N",
     "serialPortType" : "RS485",
     "deviceModel" : 1001,
     "phenomenons" : { },

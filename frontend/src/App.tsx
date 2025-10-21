@@ -180,8 +180,15 @@ function App() {
       const failedTabs: string[] = [];
       let hasNetworkConfig = false;
 
+      // Sort tabs to save network config LAST (it triggers immediate reboot)
+      const sortedTabs = [...tabsToSave].sort((a, b) => {
+        if (a === 'network') return 1;  // Move network to end
+        if (b === 'network') return -1; // Move network to end
+        return 0; // Keep other tabs in original order
+      });
+
       // Save all tabs with changes
-      for (const key of tabsToSave) {
+      for (const key of sortedTabs) {
         try {
           let response;
           
