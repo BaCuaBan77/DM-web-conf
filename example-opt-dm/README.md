@@ -202,6 +202,166 @@ The backend automatically uses these files when running in production mode.
 - Development uses files in the project for easy testing
 - Production uses system directory `/opt/dm/` for persistence
 
+## System Restart Configuration
+
+The DM Web Configuration Tool can trigger system restarts when network or device configurations change. This is implemented using a **systemd service** that monitors for restart requests and executes the appropriate commands.
+
+### How It Works
+
+1. **User clicks "Save & Reboot"** in the web UI
+2. **Backend creates trigger file**: `/opt/dm/.reboot-trigger`
+3. **Systemd service detects trigger**: `dm-reboot-watcher.service`
+4. **Restart script executes**: `/opt/dm/reboot.sh`
+   - Restarts networking service (applies network config changes)
+   - Restarts Docker service (restarts all containers with new device configs)
+
+### Installation
+
+#### Option 1: Automated Installation (Recommended)
+
+Run the installation script from the project root:
+
+```bash
+# Copy script to server
+scp install-reboot-watcher.sh root@your-server:/tmp/
+
+# SSH to server and run installer
+ssh root@your-server
+sudo bash /tmp/install-reboot-watcher.sh
+```
+
+This installs:
+- `/opt/dm/reboot.sh` - Restart script
+- `/etc/sudoers.d/dm-reboot` - Passwordless sudo permissions
+- `/etc/systemd/system/dm-reboot-watcher.service` - Monitoring service
+
+#### Option 2: Manual Installation
+
+```bash
+# 1. Install reboot script
+sudo cp example-opt-dm/reboot.sh /opt/dm/reboot.sh
+sudo chmod +x /opt/dm/reboot.sh
+
+# 2. Install sudoers configuration
+sudo cp example-opt-dm/dm-reboot-sudoers /etc/sudoers.d/dm-reboot
+sudo chmod 0440 /etc/sudoers.d/dm-reboot
+sudo visudo -c -f /etc/sudoers.d/dm-reboot
+
+# 3. Install systemd service
+sudo cp example-opt-dm/dm-reboot-watcher.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable dm-reboot-watcher.service
+sudo systemctl start dm-reboot-watcher.service
+
+# 4. Verify service is running
+sudo systemctl status dm-reboot-watcher.service
+```
+
+### Verification
+
+Check that the service is running:
+
+```bash
+systemctl status dm-reboot-watcher.service
+```
+
+Expected output:
+```
+● dm-reboot-watcher.service - DM Configuration Restart Watcher
+   Loaded: loaded (/etc/systemd/system/dm-reboot-watcher.service; enabled)
+   Active: active (running) since ...
+```
+
+### Testing
+
+**Test without actually restarting services:**
+
+```bash
+# Create trigger file manually
+echo "TEST" > /opt/dm/.reboot-trigger
+
+# Wait 2-3 seconds, then check log
+cat /opt/dm/reboot.log
+```
+
+You should see log entries showing the restart process.
+
+**Test from the Web UI:**
+
+1. Access the web UI: `http://your-server-ip`
+2. Make a configuration change
+3. Click "Save & Reboot"
+4. Check logs:
+   ```bash
+   cat /opt/dm/reboot.log
+   journalctl -u dm-reboot-watcher.service -f
+   ```
+
+### Troubleshooting
+
+**Service not running:**
+```bash
+# Check service status
+systemctl status dm-reboot-watcher.service
+
+# View service logs
+journalctl -u dm-reboot-watcher.service -n 50
+
+# Restart service
+sudo systemctl restart dm-reboot-watcher.service
+```
+
+**Trigger file not being detected:**
+```bash
+# Check if trigger file exists
+ls -la /opt/dm/.reboot-trigger
+
+# Check service logs
+journalctl -u dm-reboot-watcher.service -f
+
+# Manually trigger restart
+echo "MANUAL_TEST" > /opt/dm/.reboot-trigger
+```
+
+**Restart script fails:**
+```bash
+# Check script permissions
+ls -la /opt/dm/reboot.sh
+
+# Check sudoers configuration
+sudo cat /etc/sudoers.d/dm-reboot
+
+# Test script manually
+sudo /opt/dm/reboot.sh
+
+# Check restart log
+cat /opt/dm/reboot.log
+```
+
+**Docker containers not restarting:**
+```bash
+# Check Docker service status
+systemctl status docker
+
+# Manually restart Docker
+sudo systemctl restart docker
+
+# Check Docker logs
+journalctl -u docker -n 50
+```
+
+### What Gets Restarted
+
+When you click "Save & Reboot":
+
+| Configuration Type | Action Taken |
+|-------------------|--------------|
+| **Network Config** | `systemctl restart networking` |
+| **Device Config** | `systemctl restart docker` (restarts all containers) |
+| **MQTT Config** | `systemctl restart docker` (restarts backend container) |
+
+**Note:** The script does NOT perform a full system reboot. It only restarts necessary services.
+
 ## Backup Recommendations
 
 1. **Regular Backups:**

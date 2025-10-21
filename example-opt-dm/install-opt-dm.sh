@@ -132,6 +132,23 @@ if [ $MISSING_FILES -eq 0 ]; then
         echo -e "${GREEN}✓ reboot.sh is now executable${NC}"
     fi
     
+    # Install sudoers configuration for passwordless reboot
+    if [ -f "$SCRIPT_DIR/dm-reboot-sudoers" ]; then
+        echo ""
+        echo "Installing sudoers configuration for reboot..."
+        cp "$SCRIPT_DIR/dm-reboot-sudoers" /etc/sudoers.d/dm-reboot
+        chmod 0440 /etc/sudoers.d/dm-reboot
+        
+        # Validate sudoers file
+        if visudo -c -f /etc/sudoers.d/dm-reboot >/dev/null 2>&1; then
+            echo -e "${GREEN}✓ Sudoers configuration installed${NC}"
+            echo "  → Reboot command can now run without password"
+        else
+            echo -e "${RED}✗ Sudoers configuration is invalid, removing...${NC}"
+            rm -f /etc/sudoers.d/dm-reboot
+        fi
+    fi
+    
     echo ""
     echo -e "${GREEN}✓ Installation completed successfully!${NC}"
     echo ""

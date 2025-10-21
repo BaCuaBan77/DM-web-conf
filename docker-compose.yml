@@ -2,15 +2,13 @@ version: '3.8'
 
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: bacuaban77/dm-conf-backend:latest
     container_name: dm-config-backend
     ports:
       - "8080:8080"
     volumes:
-      - /opt/dm:/opt/dm
-      - /opt/dm/scripts:/opt/dm/scripts
+      - /opt/dm:/opt/dm  # Configuration files + reboot trigger file
+      - /etc/network/interfaces:/etc/network/interfaces
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     networks:
@@ -18,9 +16,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: bacuaban77/dm-conf-frontend:latest
     container_name: dm-config-frontend
     ports:
       - "80:80"

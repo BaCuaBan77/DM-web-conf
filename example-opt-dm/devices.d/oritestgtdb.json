@@ -1,7 +1,43 @@
 {
-  "address": "192.168.1.60",
-  "portNumber": 80,
-  "name": "Development GTD Module-B",
-  "enabled": true
+  "networkDeviceConfiguration": {
+    "deviceMainType": "ORITEST_GTDS",
+    "measPoints": [],
+    "observationMappings": [],
+    "deviceKey": "Oritest",
+    "name": "CHEM",
+    "categoryName": "Bunker",
+    "deviceMeasType": "CHEM",
+    "description": "Oritest Gas Trace Detector",
+    "deviceModel": 41000,
+    "customPhenoMap": {},
+    "connectionType": "TCPIP",
+    "address": "192.168.1.2",
+    "externalCommands": {
+      "DETECTION_TOGGLE": {
+        "channel": "DEVICE_INTERFACE_COMMAND",
+        "address": "ObSAS/Oritest",
+        "command": "GET CMD_CST"
+      },
+      "REBOOT": {
+        "channel": "DEVICE_INTERFACE_COMMAND",
+        "address": "ObSAS/Oritest",
+        "command": "GET CMD_RRB"
+      },
+      "SIMULATE_ALARM": {
+        "channel": "DEVICE_INTERFACE_COMMAND",
+        "address": "ObSAS/Oritest",
+        "command": "GET CMD_TAL"
+      },
+      "SIMULATE_ERROR": {
+        "channel": "DEVICE_INTERFACE_COMMAND",
+        "address": "ObSAS/Oritest",
+        "command": "GET CMD_TER"
+      },
+      "DATABASE_TOGGLE": {
+        "channel": "DEVICE_INTERFACE_COMMAND",
+        "address": "ObSAS/Oritest",
+        "command": "GET CMD_CDB"
+      }
+    }
+  }
 }
-

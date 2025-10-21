@@ -7,34 +7,71 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
- * Service for executing reboot script
+ * Service for triggering system restart
+ * 
+ * This service creates a trigger file that is monitored by the
+ * dm-reboot-watcher.service running on the host system.
+ * 
+ * The systemd service executes /opt/dm/reboot.sh which:
+ * - Restarts network services (to apply network config changes)
+ * - Restarts Docker containers (to apply device config changes)
  */
 @Service
 public class RebootService {
 
     private static final Logger logger = LoggerFactory.getLogger(RebootService.class);
 
-    @Value("${dm.reboot.script.path:/opt/dm/scripts/reboot.sh}")
-    private String rebootScriptPath;
+    @Value("${dm.reboot.trigger.path:/opt/dm/.reboot-trigger}")
+    private String rebootTriggerPath;
 
     @Value("${dm.reboot.test.mode:false}")
     private boolean testMode;
 
     /**
-     * Execute reboot script
+     * Trigger system restart by creating a trigger file
+     * The dm-reboot-watcher.service monitors this file and executes the restart script
      */
     public void executeReboot() throws IOException {
         if (testMode) {
             simulateReboot(true);
             return;
         }
-        executeRebootScript(rebootScriptPath);
+        createRebootTrigger();
     }
 
     /**
-     * Execute the reboot script at the specified path
+     * Create the reboot trigger file
+     * The systemd service dm-reboot-watcher.service monitors this file
+     */
+    private void createRebootTrigger() throws IOException {
+        try {
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            String content = "REBOOT_REQUESTED=" + timestamp + "\n";
+            
+            Files.write(
+                Paths.get(rebootTriggerPath),
+                content.getBytes(),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING
+            );
+            
+            logger.info("Reboot trigger file created: {}", rebootTriggerPath);
+            logger.info("dm-reboot-watcher.service will execute restart script");
+        } catch (IOException e) {
+            logger.error("Failed to create reboot trigger file: {}", rebootTriggerPath, e);
+            throw new IOException("Failed to trigger system restart: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Execute the reboot script at the specified path (legacy method for testing)
      */
     public String executeRebootScript(String scriptPath) throws IOException {
         File scriptFile = new File(scriptPath);

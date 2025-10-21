@@ -1,12 +1,22 @@
 {
-  "address": "ttyS1",
-  "speed": "19200",
-  "bits": "8",
-  "stopBits": "1",
-  "parity": "Even",
-  "serialPortType": "RS485",
-  "name": "Development WXT53X Weather Station",
-  "sensorType": "weather",
-  "enabled": true
+  "serialDeviceConfiguration" : {
+    "deviceMainType" : "WXT53x",
+    "measPoints" : [ ],
+    "deviceKey" : "WXT53x",
+    "deviceMeasType" : "WEATHER",
+    "name" : "WEATHER",
+    "categoryName" : "",
+    "description" : "WXT536",
+    "connectionType" : "SERIAL",
+    "address" : "ttyS0",
+    "speed" : 19200,
+    "bits" : 8,
+    "stopBits" : 1,
+    "parity" : "O",
+    "serialPortType" : "RS485",
+    "deviceModel" : 1001,
+    "phenomenons" : { },
+    "physicalDeviceModelId" : 1001,
+    "enabled" : true
+  }
 }
-

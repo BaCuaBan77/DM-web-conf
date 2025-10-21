@@ -1,0 +1,16 @@
+[Unit]
+Description=DM Configuration Restart Watcher
+Documentation=https://github.com/observis/DM-web-conf
+After=network.target docker.service
+
+[Service]
+Type=simple
+# Watch for trigger file and restart services when it appears
+# The trigger file is created by the backend when "Save & Reboot" is clicked
+ExecStart=/bin/bash -c 'while true; do if [ -f /opt/dm/.reboot-trigger ]; then rm -f /opt/dm/.reboot-trigger; /opt/dm/reboot.sh; fi; sleep 2; done'
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,16 @@
+# Allow passwordless execution of system restart commands
+# This is required for the DM Web Configuration Tool
+# 
+# Installation:
+#   sudo cp dm-reboot-sudoers /etc/sudoers.d/dm-reboot
+#   sudo chmod 0440 /etc/sudoers.d/dm-reboot
+#
+# These permissions allow the dm-reboot-watcher.service to:
+# - Restart network services when network config changes
+# - Restart Docker service when device config changes (restarts all containers)
+
+ALL ALL=(ALL) NOPASSWD: /bin/systemctl restart networking
+ALL ALL=(ALL) NOPASSWD: /bin/systemctl restart docker
+ALL ALL=(ALL) NOPASSWD: /bin/systemctl is-active docker
+ALL ALL=(ALL) NOPASSWD: /sbin/reboot
+
