@@ -3,9 +3,19 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../../App';
 import * as configApi from '../../api/configApi';
+import { ConfigProvider } from '../../context/ConfigContext';
 
 // Mock API calls
 vi.mock('../../api/configApi');
+
+// Helper to render with ConfigProvider
+const renderWithProvider = (component: React.ReactElement) => {
+  return render(
+    <ConfigProvider>
+      {component}
+    </ConfigProvider>
+  );
+};
 
 /**
  * Tests for tab navigation and UI responsiveness
@@ -36,7 +46,7 @@ describe('Tab Navigation', () => {
   
   it('should display all configuration tabs', async () => {
     // Act
-    render(<App />);
+    renderWithProvider(<App />);
 
     // Assert
     await waitFor(() => {
@@ -51,7 +61,7 @@ describe('Tab Navigation', () => {
 
   it('should switch between tabs and display correct data', async () => {
     // Arrange
-    render(<App />);
+    renderWithProvider(<App />);
 
     // Wait for initial tab to load
     await waitFor(() => {
@@ -70,7 +80,7 @@ describe('Tab Navigation', () => {
 
   it('should maintain data when switching back to previous tab', async () => {
     // Arrange
-    render(<App />);
+    renderWithProvider(<App />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     const devicesTab = screen.getByRole('tab', { name: /devices/i });
@@ -91,7 +101,7 @@ describe('Tab Navigation', () => {
 
   it('should load data only when tab is activated', async () => {
     // Arrange
-    render(<App />);
+    renderWithProvider(<App />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     // Assert - Devices API was called
@@ -112,7 +122,7 @@ describe('Tab Navigation', () => {
 
   it('should indicate active tab visually', async () => {
     // Arrange
-    render(<App />);
+    renderWithProvider(<App />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     const devicesTab = screen.getByRole('tab', { name: /devices/i });
@@ -145,7 +155,7 @@ describe('Tab Navigation', () => {
 
   it('should display tabs in correct order', async () => {
     // Arrange & Act
-    render(<App />);
+    renderWithProvider(<App />);
 
     // Assert
     const tabs = screen.getAllByRole('tab');

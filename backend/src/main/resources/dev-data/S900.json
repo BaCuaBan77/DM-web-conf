@@ -1,93 +1,92 @@
 {
-  "networkDeviceConfiguration": {
-    "deviceKey": "S900",
-    "deviceMeasType": "RAD",
-    "address": "172.19.0.50",
-    "connectionType": "TCPIP",
-    "description": "Flir IdentiFINDER S900",
-    "deviceModel": "19000",
-    "deviceMainType": "S900",
-    "physicalDeviceModel": 19000,
-    "name": "RAD",
-    "portNumber": "21012",
-    "measPoints": [
-      {
-        "measPointKey": "S900",
-        "order": 0,
-        "phenomenonType": "RADIATION_DOSE_RATE"
+  "networkDeviceConfiguration" : {
+    "deviceKey" : "S900",
+    "deviceMeasType" : "RAD",
+    "address" : "172.19.0.50",
+    "connectionType" : "TCPIP",
+    "description" : "Flir IdentiFINDER S900",
+    "deviceModel" : "19000",
+    "deviceMainType" : "S900",
+    "physicalDeviceModel" : 19000,
+    "name" : "Radiation Detector",
+    "portNumber" : "21013",
+    "measPoints" : [ {
+      "measPointKey" : "S900",
+      "order" : 0,
+      "phenomenonType" : "RADIATION_DOSE_RATE"
+    } ],
+    "phenomenons" : {
+      "data/doseRate" : {
+        "type" : "RADIATION_DOSE_RATE",
+        "name" : "Radiation dose rate",
+        "description" : "",
+        "unit" : "µrem/h",
+        "measValueType" : 2
+      },
+      "data/nCps" : {
+        "type" : "NEUTRON_RATE",
+        "name" : "Neutron rate",
+        "description" : "",
+        "unit" : "cps",
+        "measValueType" : 2
+      },
+      "data/gCps" : {
+        "type" : "GAMMA_RATE",
+        "name" : "Gamma rate",
+        "description" : "",
+        "unit" : "cps",
+        "measValueType" : 2
+      },
+      "data/overload" : {
+        "type" : "OVERLOAD_FLAG",
+        "name" : "Overload flag",
+        "description" : "",
+        "unit" : "",
+        "measValueType" : 1
+      },
+      "data/acquiringBackground" : {
+        "type" : "ACQUIRING_BACKGROUND_FLAG",
+        "name" : "Acquiring background",
+        "description" : "",
+        "unit" : "",
+        "measValueType" : 1
+      },
+      "data/initializing" : {
+        "type" : "INITIALIZING_PROGRESS",
+        "name" : "Initializing progress percentage",
+        "description" : "",
+        "unit" : "%",
+        "measValueType" : 2
+      },
+      "data/nAlarm" : {
+        "type" : "NEUTRON_COUNT_RATE_ALARM_FLAG",
+        "name" : "Neutron count rate alarm flag",
+        "description" : "",
+        "unit" : "",
+        "measValueType" : 1
+      },
+      "data/gAlarm" : {
+        "type" : "SIGMA_GAMMA_ALARM_FLAG",
+        "name" : "Sigma gamma alarm flag",
+        "description" : "",
+        "unit" : "",
+        "measValueType" : 1
+      },
+      "data/timeStamp" : {
+        "type" : "TIMESTAMP",
+        "name" : "Timestamp",
+        "description" : "",
+        "unit" : "ms",
+        "measValueType" : 1
+      },
+      "detection" : {
+        "type" : "IDENTIFINDER_DETECTION_JSON",
+        "name" : "IdentiFINDER detection JSON",
+        "description" : "",
+        "unit" : "",
+        "measValueType" : 1
       }
-    ],
-    "phenomenons": {
-      "data/doseRate": {
-        "type": "RADIATION_DOSE_RATE",
-        "name": "Radiation dose rate",
-        "description": "",
-        "unit": "µrem/h",
-        "measValueType": 2
-      },
-      "data/nCps": {
-        "type": "NEUTRON_RATE",
-        "name": "Neutron rate",
-        "description": "",
-        "unit": "cps",
-        "measValueType": 2
-      },
-      "data/gCps": {
-        "type": "GAMMA_RATE",
-        "name": "Gamma rate",
-        "description": "",
-        "unit": "cps",
-        "measValueType": 2
-      },
-      "data/overload": {
-        "type": "OVERLOAD_FLAG",
-        "name": "Overload flag",
-        "description": "",
-        "unit": "",
-        "measValueType": 1
-      },
-      "data/acquiringBackground": {
-        "type": "ACQUIRING_BACKGROUND_FLAG",
-        "name": "Acquiring background",
-        "description": "",
-        "unit": "",
-        "measValueType": 1
-      },
-      "data/initializing": {
-        "type": "INITIALIZING_PROGRESS",
-        "name": "Initializing progress percentage",
-        "description": "",
-        "unit": "%",
-        "measValueType": 2
-      },
-      "data/nAlarm": {
-        "type": "NEUTRON_COUNT_RATE_ALARM_FLAG",
-        "name": "Neutron count rate alarm flag",
-        "description": "",
-        "unit": "",
-        "measValueType": 1
-      },
-      "data/gAlarm": {
-        "type": "SIGMA_GAMMA_ALARM_FLAG",
-        "name": "Sigma gamma alarm flag",
-        "description": "",
-        "unit": "",
-        "measValueType": 1
-      },
-      "data/timeStamp": {
-        "type": "TIMESTAMP",
-        "name": "Timestamp",
-        "description": "",
-        "unit": "ms",
-        "measValueType": 1
-      },
-      "detection": {
-        "type": "IDENTIFINDER_DETECTION_JSON",
-        "name": "IdentiFINDER detection JSON",
-        "description": "",
-        "unit": "",
-        "measValueType": 1
-      }
-    }
+    },
+    "enabled" : true
   }
 }

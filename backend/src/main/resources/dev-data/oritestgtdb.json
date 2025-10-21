@@ -11,7 +11,7 @@
     "deviceModel" : 41000,
     "customPhenoMap" : { },
     "connectionType" : "TCPIP",
-    "address" : "192.168.1.2",
+    "address" : "192.168.1.20",
     "externalCommands" : {
       "DETECTION_TOGGLE" : {
         "channel" : "DEVICE_INTERFACE_COMMAND",

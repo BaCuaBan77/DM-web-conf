@@ -3,9 +3,19 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../../App';
 import * as configApi from '../../api/configApi';
+import { ConfigProvider } from '../../context/ConfigContext';
 
 // Mock API calls
 vi.mock('../../api/configApi');
+
+// Helper to render with ConfigProvider
+const renderWithProvider = (component: React.ReactElement) => {
+  return render(
+    <ConfigProvider>
+      {component}
+    </ConfigProvider>
+  );
+};
 
 /**
  * Integration tests for frontend save workflow
@@ -42,7 +52,7 @@ describe('Save Workflow Integration', () => {
     });
 
     // Step 1: Load page
-    render(<App />);
+    renderWithProvider(<App />);
 
     // Step 2: Wait for data to load
     await waitFor(() => {
@@ -91,7 +101,7 @@ describe('Save Workflow Integration', () => {
 
     vi.mocked(configApi.getDevicesConfig).mockResolvedValue(initialData);
 
-    render(<App />);
+    renderWithProvider(<App />);
     await waitFor(() => screen.getByDisplayValue('valid_key'));
 
     // Act - enter invalid data
@@ -135,7 +145,7 @@ describe('Save Workflow Integration', () => {
       message: 'Properties saved'
     });
 
-    render(<App />);
+    renderWithProvider(<App />);
     await waitFor(() => screen.getByDisplayValue('key1'));
 
     // Save devices configuration
@@ -182,7 +192,7 @@ describe('Save Workflow Integration', () => {
       .mockRejectedValueOnce(new Error('Network error'))
       .mockResolvedValueOnce({ success: true, message: 'Saved on retry' });
 
-    render(<App />);
+    renderWithProvider(<App />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     const saveButton = screen.getByRole('button', { name: /save/i });
@@ -223,7 +233,7 @@ describe('Save Workflow Integration', () => {
       message: 'Reboot initiated'
     });
 
-    render(<App />);
+    renderWithProvider(<App />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     // Save configuration
@@ -258,7 +268,7 @@ describe('Save Workflow Integration', () => {
       'fi.observis.sas.mqtt.url': '192.168.1.101'
     });
 
-    render(<App />);
+    renderWithProvider(<App />);
     await waitFor(() => screen.getByDisplayValue('original_key'));
 
     // Modify but don't save

@@ -3,9 +3,19 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DeviceTab from '../DeviceTab';
 import { getDeviceConfig, saveDeviceConfig } from '../../api/configApi';
+import { ConfigProvider } from '../../context/ConfigContext';
 
 // Mock API calls
 vi.mock('../../api/configApi');
+
+// Helper to render with ConfigProvider
+const renderWithProvider = (component: React.ReactElement) => {
+  return render(
+    <ConfigProvider>
+      {component}
+    </ConfigProvider>
+  );
+};
 
 /**
  * Tests for DeviceTab component (IBAC, S900, oritestgtdb, wxt53x)
@@ -34,7 +44,7 @@ describe('DeviceTab - IBAC', () => {
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
 
     // Act
-    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
+    renderWithProvider(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
 
     // Assert
     await waitFor(() => {
@@ -49,7 +59,7 @@ describe('DeviceTab - IBAC', () => {
   it('should restrict address dropdown to valid options', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
-    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
+    renderWithProvider(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('ttyS0'));
 
     const addressSelect = screen.getByLabelText(/address/i) as HTMLSelectElement;
@@ -63,7 +73,7 @@ describe('DeviceTab - IBAC', () => {
   it('should restrict speed dropdown to valid baud rates', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
-    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
+    renderWithProvider(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('9600'));
 
     const speedSelect = screen.getByLabelText(/speed/i) as HTMLSelectElement;
@@ -81,7 +91,7 @@ describe('DeviceTab - IBAC', () => {
   it('should restrict serialPortType dropdown to RS232/RS485', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
-    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
+    renderWithProvider(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('RS232'));
 
     const typeSelect = screen.getByLabelText(/serial port type/i) as HTMLSelectElement;
@@ -97,7 +107,7 @@ describe('DeviceTab - IBAC', () => {
   it('should validate device name - max 50 characters', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
-    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
+    renderWithProvider(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('IBAC Device'));
 
     const nameInput = screen.getByLabelText(/name/i);
@@ -115,7 +125,7 @@ describe('DeviceTab - IBAC', () => {
   it('should accept spaces in device name', async () => {
     // Arrange
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
-    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
+    renderWithProvider(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('IBAC Device'));
 
     const nameInput = screen.getByLabelText(/name/i);
@@ -137,7 +147,7 @@ describe('DeviceTab - IBAC', () => {
     vi.mocked(getDeviceConfig).mockResolvedValue(mockIBACData);
     vi.mocked(saveDeviceConfig).mockResolvedValue({ success: true, message: 'Saved' });
     
-    render(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
+    renderWithProvider(<DeviceTab deviceName="IBAC" onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('ttyS0'));
 
     const addressSelect = screen.getByLabelText(/address/i);

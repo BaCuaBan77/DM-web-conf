@@ -3,9 +3,19 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DevicesTab from '../DevicesTab';
 import { getDevicesConfig, saveDevicesConfig } from '../../api/configApi';
+import { ConfigProvider } from '../../context/ConfigContext';
 
 // Mock API calls
 vi.mock('../../api/configApi');
+
+// Helper to render with ConfigProvider
+const renderWithProvider = (component: React.ReactElement) => {
+  return render(
+    <ConfigProvider>
+      {component}
+    </ConfigProvider>
+  );
+};
 
 /**
  * Tests for DevicesTab component
@@ -29,7 +39,7 @@ describe('DevicesTab', () => {
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
 
     // Act
-    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
+    renderWithProvider(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
 
     // Assert
     await waitFor(() => {
@@ -45,7 +55,7 @@ describe('DevicesTab', () => {
     );
 
     // Act
-    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
+    renderWithProvider(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
 
     // Assert
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
@@ -248,7 +258,7 @@ describe('DevicesTab', () => {
     vi.mocked(getDevicesConfig).mockRejectedValue(new Error('Failed to load'));
 
     // Act
-    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
+    renderWithProvider(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
 
     // Assert
     await waitFor(() => {

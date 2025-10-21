@@ -9,7 +9,7 @@
     "description" : "IBAC2",
     "connectionType" : "SERIAL",
     "address" : "ttyS1",
-    "speed" : 57600,
+    "speed" : 115200,
     "bits" : 8,
     "stopBits" : 1,
     "parity" : "N",
