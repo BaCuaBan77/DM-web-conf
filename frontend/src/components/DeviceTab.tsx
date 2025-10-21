@@ -89,6 +89,9 @@ const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
       if (config.address && !validateIPv4(config.address)) {
         newErrors.address = 'Invalid IP address';
       }
+      if (config.portNumber !== undefined && config.portNumber && !validatePortNumber(config.portNumber)) {
+        newErrors.portNumber = 'Port must be between 1 and 65535';
+      }
     }
 
     setErrors(newErrors);
@@ -244,12 +247,12 @@ const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
         </Typography>
         <TextField
           fullWidth
-          placeholder="502"
+          placeholder="21012"
           type="number"
           value={config.portNumber || ''}
           onChange={(e) => updateField('portNumber', parseInt(e.target.value) || '')}
           error={!!errors.portNumber}
-          helperText={errors.portNumber || 'S900 device port number'}
+          helperText={errors.portNumber || 'S900 device port number (default: 21012)'}
           sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'white' } }}
         />
       </Box>
@@ -258,19 +261,37 @@ const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
 
   // Render oritestgtdb configuration
   const renderOritestgtdbConfig = () => (
-    <Box>
-      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-        IP Address
-      </Typography>
-      <TextField
-        fullWidth
-        placeholder="192.168.1.10"
-        value={config.address || ''}
-        onChange={(e) => updateField('address', e.target.value)}
-        error={!!errors.address}
-        helperText={errors.address || 'OriTestGTDB database IP address'}
-        sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'white' } }}
-      />
+    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+      <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+          IP Address
+        </Typography>
+        <TextField
+          fullWidth
+          placeholder="192.168.1.10"
+          value={config.address || ''}
+          onChange={(e) => updateField('address', e.target.value)}
+          error={!!errors.address}
+          helperText={errors.address || 'GTD Module-B network IP address'}
+          sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'white' } }}
+        />
+      </Box>
+
+      <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+          Port Number
+        </Typography>
+        <TextField
+          fullWidth
+          placeholder="80"
+          type="number"
+          value={config.portNumber || ''}
+          onChange={(e) => updateField('portNumber', parseInt(e.target.value) || '')}
+          error={!!errors.portNumber}
+          helperText={errors.portNumber || 'GTD Module-B port number (default: 80)'}
+          sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'white' } }}
+        />
+      </Box>
     </Box>
   );
 
@@ -293,15 +314,15 @@ const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
     if (deviceName.toUpperCase() === 'S900') {
       return [
         'Ensure the S900 device is on the same network',
-        'Default Modbus TCP port is typically 502',
+        'Default port is 21012',
         'Verify the device IP address is static or reserved in DHCP'
       ];
     }
     if (deviceName.toUpperCase() === 'ORITESTGTDB') {
       return [
-        'Database must be accessible from this device',
-        'Ensure network connectivity to the database server',
-        'Verify firewall rules allow database connections'
+        'GTD Module-B must be accessible from this device',
+        'Ensure network connectivity to the device',
+        'Default port is 80, verify firewall rules allow connections'
       ];
     }
     return [

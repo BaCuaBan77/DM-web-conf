@@ -1,326 +1,718 @@
-# Device Manager Web Configuration Interface
+# Device Manager Web Configuration
 
-A web-based configuration interface for Device Manager running in Docker on a Debian PC.
+> A modern, user-friendly web interface for configuring Device Manager systems running on Debian hardware
 
-## Overview
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
+[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://openjdk.org/projects/jdk/17/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue.svg)](https://www.typescriptlang.org/)
 
-This project provides a user-friendly web interface to edit configuration files for the Device Manager system. It consists of:
-- **Backend**: Spring Boot REST API
-- **Frontend**: React + TypeScript + Vite + Material UI
-- **Deployment**: Docker containers
+---
 
-## Features
+## 📋 Overview
 
-### Core Features
-- Edit device manager configuration (`devices.json`)
-- Edit system properties (`config.properties`)
-- Configure device-specific settings (IBAC, S900, oritestgtdb, WXT53X)
-- Configure Debian static IP network settings
+The Device Manager Web Configuration interface provides a professional web-based solution for managing configuration files on Debian-based detection systems. Built with modern technologies and following Material UI design principles, it offers an intuitive experience for configuring detection devices, network settings, and system parameters.
+
+### Key Features
+
+✨ **Modern UI/UX**
+- Material UI components with Observis green theme
+- Sidebar navigation with grouped sections
 - Real-time validation with instant feedback
-- System reboot trigger
-- Tabbed interface for easy navigation
+- Change tracking with visual indicators
+- Responsive design for desktop and tablet
 
-### Material UI Enhancements
-- Professional, modern UI with green Observis theme
-- Unsaved changes tracking with visual indicators (pulsing dots on tabs)
-- Save & Reboot workflow with confirmation dialog
-- Toast notifications for user feedback
-- Responsive design for various screen sizes
-- Real-time form validation with helpful error messages
+💾 **Save All Changes**
+- Modify multiple configurations
+- Single save operation for all changes
+- Atomic updates with one system reboot
+- Clear confirmation of what's being saved
 
-## Project Structure
+🔧 **Device Configuration**
+- **IBAC2** - Biological detection (serial interface)
+- **S900** - Radiation detection (network interface)
+- **GTD Module-B** - Chemical detection (network interface)
+- **WXT53X** - Weather station (serial interface)
+
+🌐 **Network Management**
+- Static IP or DHCP configuration
+- Debian `/etc/network/interfaces` editing
+- Real-time IPv4 validation
+- Safe configuration with warnings
+
+🛡️ **Validation & Safety**
+- Frontend and backend validation
+- MQTT topic format checking
+- IPv4 address validation
+- Port number range checking
+- Device-specific rules
+
+🧪 **Comprehensive Testing**
+- Unit tests (JUnit 5, Vitest)
+- Integration tests
+- E2E tests (Playwright)
+- >80% code coverage
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Java 17+
+- Node.js 20.18.3
+- Maven 3.9+
+- Docker & Docker Compose (optional, for production)
+
+### Development Mode (5 Minutes)
+
+**1. Clone & Setup:**
+```bash
+git clone <repository-url>
+cd DM-web-conf
+
+# Setup Node version
+nvm install 20.18.3
+nvm use 20.18.3
+```
+
+**2. Start Application:**
+```bash
+./START_APP.sh
+```
+
+**3. Access UI:**
+Open browser to http://localhost:3000
+
+**4. Try It Out:**
+- Navigate using the sidebar
+- Make changes in "DM Details"
+- Notice 🟠 orange dot on the tab
+- Modify "Server Connection" too
+- Click "Save Changes"
+- Confirm to save all
+
+**5. Stop:**
+```bash
+./STOP_APP.sh
+```
+
+### Production Deployment
+
+```bash
+# Ensure /opt/dm/ directories exist with config files
+docker-compose up -d
+
+# Access at http://<debian-ip>:80
+```
+
+---
+
+## 📂 Project Structure
 
 ```
 DM-web-conf/
-├── backend/                    # Spring Boot API
+├── backend/                      # Spring Boot REST API
 │   ├── src/
-│   │   ├── main/java/
-│   │   │   └── com/observis/dmconfig/
-│   │   │       ├── controller/    # REST controllers
-│   │   │       ├── service/       # Business logic
-│   │   │       └── validation/    # Input validation
-│   │   └── test/java/             # Backend tests
-│   │       └── com/observis/dmconfig/
-│   │           ├── controller/    # Controller tests
-│   │           ├── service/       # Service tests
-│   │           ├── validation/    # Validation tests
-│   │           └── integration/   # Integration tests
-│   ├── pom.xml
+│   │   ├── main/
+│   │   │   ├── java/             # Application code
+│   │   │   │   └── com/observis/dmconfig/
+│   │   │   │       ├── controller/    # REST endpoints
+│   │   │   │       ├── service/       # Business logic
+│   │   │   │       └── validation/    # Input validation
+│   │   │   └── resources/
+│   │   │       ├── application.properties       # Dev config
+│   │   │       ├── application-prod.properties  # Prod config
+│   │   │       └── dev-data/          # Sample data for dev
+│   │   └── test/                      # Backend tests
+│   ├── pom.xml                   # Maven configuration
+│   ├── settings.xml              # Maven settings (use Central)
 │   └── Dockerfile
-├── frontend/                   # React application
+│
+├── frontend/                     # React + TypeScript + Vite
 │   ├── src/
 │   │   ├── components/           # React components
-│   │   │   └── __tests__/        # Component tests
-│   │   ├── utils/                # Utilities
-│   │   │   └── __tests__/        # Utility tests
+│   │   │   ├── DevicesTab.tsx         # DM Details page
+│   │   │   ├── ConfigPropertiesTab.tsx # Server Connection
+│   │   │   ├── DeviceTab.tsx          # Device configs
+│   │   │   ├── NetworkConfigTab.tsx   # Network settings
+│   │   │   └── __tests__/             # Component tests
 │   │   ├── api/                  # API client
-│   │   └── __tests__/            # Integration tests
+│   │   ├── utils/                # Utilities & validation
+│   │   └── App.tsx               # Main application
+│   ├── e2e/                      # Playwright E2E tests
+│   ├── public/
+│   │   ├── ms-bio.svg            # IBAC2 icon
+│   │   ├── ms-rad.svg            # S900 icon
+│   │   └── ms-chem.svg           # GTD Module-B icon
 │   ├── package.json
 │   ├── vite.config.ts
 │   └── Dockerfile
-├── Architecture/               # System architecture diagrams
-├── TDD_plan.md                # Test-driven development plan
-├── Requirement Specs.md       # Requirements specification
-└── docker-compose.yml         # Docker orchestration
-
+│
+├── docs/                         # Documentation
+│   ├── guides/
+│   │   ├── quick-start-guide.md       # Getting started
+│   │   └── development-guide.md       # Developer docs
+│   ├── testing/
+│   │   ├── e2e-test-guide.md          # E2E testing
+│   │   └── tdd-plan.md                # TDD plan
+│   ├── requirements/
+│   │   └── requirements.md            # Requirements spec
+│   ├── architecture/
+│   │   ├── context.mermaid            # System context
+│   │   ├── container.mermaid          # Containers
+│   │   └── component.mermaid          # Components
+│   ├── API.md                    # API documentation
+│   └── FEATURES.md               # Feature list
+│
+├── docker-compose.yml            # Container orchestration
+├── START_APP.sh                  # Quick start script
+├── STOP_APP.sh                   # Stop script
+└── README.md                     # This file
 ```
 
-## Testing
+---
 
-### Unit Tests
+## 🎨 User Interface
 
-**Backend (Spring Boot + JUnit):**
+### Navigation
+
+**Sidebar Menu Structure:**
+
+```
+┌─ Main Section ─────────────────┐
+│ 📄 DM Details                  │
+│ 🌐 Network Config              │
+│ 🔌 Server Connection           │
+├─ Device Settings ──────────────┤
+│ 🧬 IBAC2 (Biological)          │
+│ ☢️  S900 (Radiation)            │
+│ 🧪 GTD Module-B (Chemical)     │
+│ ☁️  WXT53X (Weather)            │
+└─────────────────────────────────┘
+```
+
+**Visual Indicators:**
+- ✅ Green highlight = Current page
+- 🟠 Orange dot = Unsaved changes
+- No indicator = No changes
+
+### Configuration Pages
+
+#### DM Details
+Configure Device Manager identification:
+- **Device Manager Key**: MQTT topic identifier (max 20 chars)
+- **Device Manager Name**: Human-readable name (max 50 chars)
+
+#### Network Configuration
+Manage Debian network interface:
+- Interface selection (eth0, enp0s3, etc.)
+- DHCP or Static IP
+- IP address, netmask, gateway (for static)
+- ⚠️ Triggers immediate system reboot
+
+#### Server Connection
+Configure MQTT broker connection:
+- **Broker IP**: IPv4 address
+- **Port**: Default 1883, or 8883 for TLS
+
+#### Device-Specific Configuration
+
+**Serial Devices (IBAC2, WXT53X):**
+- Serial port (ttyS0/ttyS1)
+- Baud rate (9600-115200)
+- Data/stop bits, parity
+- Port type (RS232/RS485)
+
+**Network Devices (S900):**
+- IP address
+- Port number (default: 21012)
+
+**Network Devices (GTD Module-B):**
+- Network device IP address
+- Port number (default: 80)
+
+### Save Workflow
+
+**Multi-Tab Save Process:**
+
+1. 📝 Make changes in any/all tabs
+2. 🔍 Visual indicators show modified tabs (orange dots)
+3. 💾 Click "Save Changes" button (enabled when changes exist)
+4. 📋 Review confirmation dialog listing all tabs to save
+5. ✅ Confirm to save all configurations
+6. 🔄 System reboots once after all saves complete
+7. 🎉 Success notification with list of saved tabs
+
+**Validation:**
+- Real-time validation as you type
+- All modified tabs validated before save
+- Error message shows which tabs have validation errors
+- Must fix all errors before saving
+
+---
+
+## 🔌 API Endpoints
+
+### Configuration Management
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/devices` | Get device manager config |
+| POST | `/api/save` | Save devices or properties config |
+| GET | `/api/config/properties` | Get server connection config |
+| GET | `/api/device/{name}` | Get device-specific config |
+| POST | `/api/device/{name}` | Save device config |
+| GET | `/api/network` | Get network configuration |
+| POST | `/api/network` | Save network & trigger reboot |
+| POST | `/api/reboot` | Trigger system reboot |
+
+**Device Names:** `IBAC`, `S900`, `oritestgtdb`, `wxt53x`
+
+### Example Usage
+
+```bash
+# Get device manager config
+curl http://localhost:8080/api/devices
+
+# Save configuration
+curl -X POST http://localhost:8080/api/save \
+  -H "Content-Type: application/json" \
+  -d '{"configType":"devices","data":{"deviceManagerKey":"DM-1","deviceManagerName":"Station 1"}}'
+
+# Get IBAC2 config
+curl http://localhost:8080/api/device/IBAC
+
+# Save network config (triggers reboot)
+curl -X POST http://localhost:8080/api/network \
+  -H "Content-Type: application/json" \
+  -d '{"interface":"eth0","method":"static","address":"192.168.1.100","netmask":"255.255.255.0","gateway":"192.168.1.1"}'
+```
+
+📖 **Full API Documentation:** See [`docs/API.md`](docs/API.md)
+
+---
+
+## ✅ Validation Rules
+
+### Device Manager (devices.json)
+
+| Field | Rules |
+|-------|-------|
+| deviceManagerKey | Max 20 chars, alphanumeric + `space - _ .` only, no `/` `#` `+` |
+| deviceManagerName | Max 50 chars, any characters |
+
+### Server Connection (config.properties)
+
+| Field | Rules |
+|-------|-------|
+| mqtt.broker | Valid IPv4 address |
+| mqtt.port | Port number 1-65535 |
+
+### Device Configurations
+
+**Serial Devices (IBAC2, WXT53X):**
+- address: `ttyS0` or `ttyS1`
+- speed: `9600`, `19200`, `38400`, `57600`, or `115200`
+- bits: `7` or `8`
+- stopBits: `1` or `2`
+- parity: `None`, `Even`, or `Odd`
+- serialPortType: `RS232` or `RS485`
+- name: Max 50 chars
+
+**Network Devices (S900):**
+- address: Valid IPv4
+- portNumber: 1-65535, default 21012
+- name: Max 50 chars
+
+**Network Devices (GTD Module-B):**
+- address: Valid IPv4
+- portNumber: 1-65535, default 80
+- name: Max 50 chars
+
+### Network Configuration
+
+| Field | Rules |
+|-------|-------|
+| interface | Any valid interface name |
+| method | `static` or `dhcp` |
+| address | Valid IPv4 (required for static) |
+| netmask | Valid IPv4 (required for static) |
+| gateway | Valid IPv4 (optional) |
+
+---
+
+## 🧪 Testing
+
+### Run Tests
+
+**Backend:**
 ```bash
 cd backend
-mvn test
+mvn test -s settings.xml                   # All tests
+mvn test -Dtest="*EndToEnd*" -s settings.xml  # E2E only
 ```
 
-**Frontend (Vitest + React Testing Library):**
+**Frontend:**
 ```bash
 cd frontend
-npm test
+npm test                    # Unit tests
+npm run test:e2e           # E2E tests (headless)
+npm run test:e2e:ui        # E2E tests (interactive)
 ```
-
-### E2E Tests
-
-**Frontend E2E (Playwright):**
-```bash
-cd frontend
-npm run test:e2e           # Run all E2E tests
-npm run test:e2e:ui        # Interactive mode
-npm run test:e2e:headed    # See browser
-```
-
-**Backend E2E (JUnit):**
-```bash
-cd backend
-mvn test -Dtest="*EndToEnd*"
-```
-
-**For complete E2E testing guide, see:** [`E2E_TEST_GUIDE.md`](E2E_TEST_GUIDE.md)
 
 ### Test Coverage
 
 **Backend:**
 ```bash
 cd backend
-mvn test jacoco:report
-# Coverage report in target/site/jacoco/index.html
+mvn test jacoco:report -s settings.xml
+# Report: target/site/jacoco/index.html
 ```
 
 **Frontend:**
 ```bash
 cd frontend
 npm run test:coverage
-# Coverage report in coverage/index.html
+# Report: coverage/index.html
 ```
 
-Test coverage includes:
-- File I/O operations (JSON and properties files)
-- Input validation (MQTT topics, IPv4 addresses, ports, serial settings)
-- REST API endpoints
-- Component rendering and user interactions
-- Complete workflows (save, reboot, network configuration)
-- Error handling and edge cases
+### Test Structure
 
-## Quick Start
+**Backend Tests:**
+- Unit: Service, Controller, Validation layers
+- Integration: Full workflow tests
+- E2E: Complete API workflows
 
-### Prerequisites
+**Frontend Tests:**
+- Unit: Components, Utilities
+- Integration: User workflows
+- E2E: Complete UI workflows (Playwright)
 
-- Java 17+
-- Node.js 20.18.3 (via nvm recommended)
+📖 **Full Testing Guide:** See [`docs/testing/e2e-test-guide.md`](docs/testing/e2e-test-guide.md)
+
+---
+
+## 🏗️ Architecture
+
+### System Context
+
+```mermaid
+flowchart TD
+    User[End User] -->|Uses web interface| WebConfig[DM Web Config]
+    WebConfig -->|Reads/Writes files| Host[Debian Host]
+    Host -->|DM reads updated files| DM[Device Manager]
+```
+
+### Technology Stack
+
+**Backend:**
+- Spring Boot 3.2.0
+- Java 17
 - Maven 3.9+
+- Jackson (JSON processing)
+
+**Frontend:**
+- React 18.3.1
+- TypeScript 5.5.3
+- Material UI 7.3.4
+- Vite 5.3.3
+- Axios 1.7.2
+
+**Testing:**
+- JUnit 5 (backend)
+- Vitest (frontend unit)
+- Playwright (frontend E2E)
+
+**Deployment:**
 - Docker & Docker Compose
+- Nginx (frontend)
+- Multi-stage builds
 
-### Development Mode (Recommended for Local Development)
+📖 **Architecture Diagrams:** See [`docs/architecture/`](docs/architecture/)
 
-**Quick Start:**
+---
+
+## 🔧 Development
+
+### Environment Setup
+
+**Prerequisites:**
 ```bash
-./START_APP.sh
+# Install Node Version Manager
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Install Node 20.18.3
+nvm install 20.18.3
+nvm use 20.18.3
+
+# Verify versions
+java -version    # Should be 17+
+node --version   # Should be v20.18.3
+mvn --version    # Should be 3.9+
 ```
 
-This script will:
-1. Start the backend on `http://localhost:8080`
-2. Start the frontend on `http://localhost:3001`
-3. Use development data from `backend/src/main/resources/dev-data/`
-
-**Stop:**
-```bash
-./STOP_APP.sh
-```
-
-### Manual Development Setup
+### Running Locally
 
 **Backend:**
 ```bash
 cd backend
 mvn spring-boot:run -s settings.xml
+# Runs on http://localhost:8080
+# Uses dev profile (src/main/resources/dev-data/)
 ```
-- API available at `http://localhost:8080`
-- Uses local resource files (dev mode)
 
 **Frontend:**
 ```bash
-# Load nvm and use Node 20.18.3
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-nvm use 20.18.3
-
 cd frontend
 npm install
 npm run dev
+# Runs on http://localhost:3000
+# Hot reload enabled
 ```
-- UI available at `http://localhost:3001`
 
-**Note:** Development mode uses sample data files from `src/main/resources/dev-data/` so you don't need to create `/opt/dm/` directories during development.
+### Configuration Profiles
 
-## Production Deployment
+**Development Profile** (default):
+- Uses `src/main/resources/dev-data/` for configs
+- Simulated reboot (no actual system reboot)
+- Detailed logging
+- No `/opt/dm/` setup required
 
-### Using Docker Compose
+**Production Profile**:
+- Uses `/opt/dm/` for configs
+- Actual system reboot via `reboot.sh`
+- Standard logging
+- Requires proper file structure on host
 
+### Code Style
+
+**Backend (Java):**
+- Spring Boot conventions
+- Comprehensive JavaDoc for public APIs
+- Small, focused methods
+
+**Frontend (TypeScript):**
+- Functional components with hooks
+- Props interfaces for all components
+- Descriptive variable names
+
+📖 **Development Guide:** See [`docs/guides/development-guide.md`](docs/guides/development-guide.md)
+
+---
+
+## 🐳 Docker Deployment
+
+### Production Deployment
+
+**1. Prepare Host:**
+```bash
+# Create directories
+sudo mkdir -p /opt/dm/devices.d
+sudo mkdir -p /opt/dm/scripts
+
+# Create config files
+sudo touch /opt/dm/devices.json
+sudo touch /opt/dm/config.properties
+
+# Create reboot script
+cat <<EOF | sudo tee /opt/dm/scripts/reboot.sh
+#!/bin/bash
+sudo reboot
+EOF
+
+sudo chmod +x /opt/dm/scripts/reboot.sh
+```
+
+**2. Deploy:**
 ```bash
 docker-compose up -d
 ```
 
-This will:
-1. Build and start the backend container (port 8080)
-2. Build and start the frontend container (port 80)
-3. Mount `/opt/dm/` from the host for configuration files
-4. Create a network for container communication
-
-Access the web interface at `http://<debian-ip>/`
+**3. Access:**
+```
+http://<debian-ip>:80
+```
 
 ### File Mounts
 
-The following host paths are mounted:
-- `/opt/dm/devices.json` - Device manager configuration
-- `/opt/dm/config.properties` - System properties
-- `/opt/dm/devices.d/` - Device-specific configurations
-- `/opt/dm/scripts/reboot.sh` - Reboot script
+The following host paths are mounted into containers:
 
-## API Endpoints
-
-### Configuration Endpoints
-
-- `GET /api/devices` - Get devices.json configuration
-- `GET /api/config/properties` - Get config.properties
-- `GET /api/device/{deviceName}` - Get device-specific config (IBAC, S900, etc.)
-- `GET /api/network` - Get network configuration
-- `POST /api/save` - Save configuration (devices or config.properties)
-- `POST /api/device/{deviceName}` - Save device-specific config
-- `POST /api/network` - Save network config and trigger reboot
-- `POST /api/reboot` - Trigger system reboot
-
-### Quick API Test
-
-```bash
-# Get device manager config
-curl http://localhost:8080/api/devices
-
-# Get network config
-curl http://localhost:8080/api/network
-
-# Save configuration
-curl -X POST http://localhost:8080/api/save \
-  -H "Content-Type: application/json" \
-  -d '{"configType":"devices","data":{"deviceManagerKey":"test","deviceManagerName":"Test"}}'
+```
+/opt/dm/devices.json           → Device manager config
+/opt/dm/config.properties      → Server connection config
+/opt/dm/devices.d/IBAC.json    → IBAC2 config
+/opt/dm/devices.d/S900.json    → S900 config
+/opt/dm/devices.d/oritestgtdb.json → GTD Module-B config
+/opt/dm/devices.d/wxt53x.json  → WXT53X config
+/opt/dm/scripts/reboot.sh      → Reboot script
+/etc/network/interfaces        → Network configuration
 ```
 
-## Validation Rules
+### Container Management
 
-### devices.json
-- `deviceManagerKey`: Max 20 chars, valid MQTT topic (no /, #, +)
-- `deviceManagerName`: Max 50 chars, spaces allowed
-
-### config.properties
-- `fi.observis.sas.karafrest`: Valid IPv4 address
-- `fi.observis.sas.mqtt.url`: Valid IPv4 address
-
-### Device Configurations
-- **IBAC/WXT53X**: Serial port settings with dropdown validation
-  - Serial ports: ttyS0, ttyS1
-  - Baud rates: 9600, 19200, 38400, 57600, 115200
-  - Parity: None, Even, Odd
-  - Data bits: 7, 8
-  - Stop bits: 1, 2
-  - Serial port type: RS232, RS485
-- **S900**: IPv4 address + port number (1-65535)
-- **oritestgtdb**: IPv4 address
-- All devices: name field (max 50 chars)
-
-### Network Configuration
-- **Interface**: Any valid interface name (eth0, enp0s3, etc.)
-- **Method**: DHCP or Static
-- **IP Address**: Valid IPv4 (required for static)
-- **Netmask**: Valid IPv4 (required for static)
-- **Gateway**: Valid IPv4 (optional)
-
-## Test-Driven Development
-
-This project follows TDD principles. See `TDD_plan.md` for:
-- Detailed test cases
-- Development order
-- Validation rules
-- Priority assignments
-
-## Architecture
-
-See the `Architecture/` directory for:
-- `context.mermaid` - System context diagram
-- `container.mermaid` - Container diagram
-- `component.mermaid` - Component diagram
-
-## Documentation
-
-- **[QUICK_START_GUIDE.md](QUICK_START_GUIDE.md)** - Quick start, features, and troubleshooting
-- **[E2E_TEST_GUIDE.md](E2E_TEST_GUIDE.md)** - Complete E2E testing guide
-- **[TDD_plan.md](TDD_plan.md)** - Test-driven development plan
-- **[Requirement Specs.md](Requirement%20Specs.md)** - Requirements specification
-- **Architecture/** - System architecture diagrams (Mermaid)
-
-## Troubleshooting
-
-### Port Already in Use
 ```bash
-# Check and kill process on port 8080 (backend)
-kill $(lsof -ti:8080)
+# View logs
+docker-compose logs -f
 
-# Check and kill process on port 3001 (frontend)
-kill $(lsof -ti:3001)
+# Restart services
+docker-compose restart
+
+# Stop and remove
+docker-compose down
+
+# Update and rebuild
+git pull
+docker-compose down
+docker-compose build
+docker-compose up -d
 ```
 
-### Node Version Issues
-```bash
-# Verify Node version
-node --version  # Should be v20.18.3
+---
 
-# Switch to correct version
-nvm use 20.18.3
+## 📚 Documentation
+
+### Guides
+
+- 📘 [Quick Start Guide](docs/guides/quick-start-guide.md) - Get up and running in 5 minutes
+- 🔧 [Development Guide](docs/guides/development-guide.md) - Complete developer documentation
+
+### Technical Documentation
+
+- 🔌 [API Documentation](docs/API.md) - REST API reference
+- ✨ [Features](docs/FEATURES.md) - Complete feature list
+- 🧪 [E2E Testing Guide](docs/testing/e2e-test-guide.md) - Testing documentation
+- 📋 [TDD Plan](docs/testing/tdd-plan.md) - Test-driven development plan
+
+### Requirements & Architecture
+
+- 📝 [Requirements](docs/requirements/requirements.md) - Requirements specification
+- 🏗️ [Architecture](docs/architecture/) - System architecture diagrams (Mermaid)
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**Port Already in Use:**
+```bash
+# Kill process on port 8080 (backend)
+lsof -ti:8080 | xargs kill -9
+
+# Kill process on port 3000 (frontend)
+lsof -ti:3000 | xargs kill -9
 ```
 
-### Backend Not Finding Config Files
-- Make sure you're running from the `backend/` directory
-- Development mode uses `src/main/resources/dev-data/`
-- Production mode uses `/opt/dm/` (requires actual files)
+**Node Version Wrong:**
+```bash
+node --version  # Check current version
+nvm use 20.18.3 # Switch to correct version
+```
 
-### Frontend Build Issues
+**Maven Dependency Issues:**
+```bash
+# Always use settings.xml to avoid Nexus errors
+mvn clean install -s settings.xml -U
+```
+
+**Frontend Build Errors:**
 ```bash
 cd frontend
 rm -rf node_modules package-lock.json
 npm install
 ```
 
-For more troubleshooting, see [QUICK_START_GUIDE.md](QUICK_START_GUIDE.md)
+**Backend Can't Find Config Files:**
+- Development: Runs from `backend/` directory, uses `src/main/resources/dev-data/`
+- Production: Requires `/opt/dm/` files and Docker volumes
 
-## Contributing
+📖 **More Troubleshooting:** See [Quick Start Guide](docs/guides/quick-start-guide.md#troubleshooting)
 
-1. Write tests first (following `TDD_plan.md`)
-2. Implement features to pass tests
-3. Run all tests (unit + E2E) before committing
-4. Maintain test coverage above 80%
-5. Follow Material UI design patterns
+---
 
-## License
+## 🤝 Contributing
+
+We follow Test-Driven Development (TDD) principles:
+
+1. **Write Tests First** - See [`docs/testing/tdd-plan.md`](docs/testing/tdd-plan.md)
+2. **Implement Features** - Code to pass tests
+3. **Run All Tests** - Unit + Integration + E2E
+4. **Maintain Coverage** - Keep > 80% coverage
+5. **Follow Patterns** - Use existing code as examples
+6. **Update Docs** - Keep documentation current
+
+### Commit Message Format
+
+```
+<type>(<scope>): <subject>
+
+Examples:
+  feat(ui): add dark mode toggle
+  fix(backend): correct IPv4 validation
+  docs(readme): update installation steps
+  test(e2e): add network config workflow test
+```
+
+📖 **Contributing Guide:** See [`docs/guides/development-guide.md#contributing`](docs/guides/development-guide.md#contributing)
+
+---
+
+## 📜 License
 
 Copyright © 2025 Observis. All rights reserved.
 
+This software is proprietary and confidential. Unauthorized copying, distribution, or use of this software is strictly prohibited.
+
+---
+
+## 🆘 Support
+
+### Documentation Resources
+
+- **Getting Started**: Read the [Quick Start Guide](docs/guides/quick-start-guide.md)
+- **Development**: See the [Development Guide](docs/guides/development-guide.md)
+- **API Reference**: Check the [API Documentation](docs/API.md)
+- **Testing**: Review the [E2E Testing Guide](docs/testing/e2e-test-guide.md)
+
+### Technical Support
+
+For technical support or questions:
+- Review documentation in `docs/` directory
+- Check troubleshooting sections
+- Contact the Observis development team
+
+---
+
+## 🎯 Project Status
+
+**Current Version**: 1.0.0  
+**Status**: ✅ Production Ready
+
+### Recent Updates
+
+- ✅ Multi-tab save functionality
+- ✅ Custom SVG icons for devices
+- ✅ Comprehensive validation
+- ✅ Material UI redesign
+- ✅ Network configuration management
+- ✅ E2E testing suite
+- ✅ Docker deployment ready
+
+### Upcoming Features
+
+- 🔄 Authentication & authorization
+- 🔄 Configuration backup/restore
+- 🔄 Audit logging
+- 🔄 Multi-language support
+
+---
+
+<div align="center">
+
+**Built with ❤️ by the Observis Team**
+
+[Documentation](docs/) • [API](docs/API.md) • [Features](docs/FEATURES.md)
+
+</div>
