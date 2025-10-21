@@ -6,17 +6,27 @@ A web-based configuration interface for Device Manager running in Docker on a De
 
 This project provides a user-friendly web interface to edit configuration files for the Device Manager system. It consists of:
 - **Backend**: Spring Boot REST API
-- **Frontend**: React + TypeScript + Vite
+- **Frontend**: React + TypeScript + Vite + Material UI
 - **Deployment**: Docker containers
 
 ## Features
 
+### Core Features
 - Edit device manager configuration (`devices.json`)
 - Edit system properties (`config.properties`)
 - Configure device-specific settings (IBAC, S900, oritestgtdb, WXT53X)
-- Real-time validation
+- Configure Debian static IP network settings
+- Real-time validation with instant feedback
 - System reboot trigger
 - Tabbed interface for easy navigation
+
+### Material UI Enhancements
+- Professional, modern UI with green Observis theme
+- Unsaved changes tracking with visual indicators (pulsing dots on tabs)
+- Save & Reboot workflow with confirmation dialog
+- Toast notifications for user feedback
+- Responsive design for various screen sizes
+- Real-time form validation with helpful error messages
 
 ## Project Structure
 
@@ -55,88 +65,114 @@ DM-web-conf/
 
 ```
 
-## Running Tests
+## Testing
 
-### Backend Tests (Spring Boot + JUnit)
+### Unit Tests
 
+**Backend (Spring Boot + JUnit):**
 ```bash
 cd backend
 mvn test
 ```
 
-Test coverage includes:
-- File I/O operations (JSON and properties files)
-- Input validation (MQTT topics, IPv4 addresses, ports, serial settings)
-- REST API endpoints
-- Reboot script execution
-- Integration tests for full save workflow
-
-### Frontend Tests (Vitest + React Testing Library)
-
+**Frontend (Vitest + React Testing Library):**
 ```bash
 cd frontend
 npm test
 ```
 
-Test coverage includes:
-- Component rendering and data loading
-- Real-time validation
-- User interactions (form editing, tab switching)
-- Save workflow
-- Error handling
+### E2E Tests
 
-### Run Tests with Coverage
+**Frontend E2E (Playwright):**
+```bash
+cd frontend
+npm run test:e2e           # Run all E2E tests
+npm run test:e2e:ui        # Interactive mode
+npm run test:e2e:headed    # See browser
+```
 
-Backend:
+**Backend E2E (JUnit):**
+```bash
+cd backend
+mvn test -Dtest="*EndToEnd*"
+```
+
+**For complete E2E testing guide, see:** [`E2E_TEST_GUIDE.md`](E2E_TEST_GUIDE.md)
+
+### Test Coverage
+
+**Backend:**
 ```bash
 cd backend
 mvn test jacoco:report
 # Coverage report in target/site/jacoco/index.html
 ```
 
-Frontend:
+**Frontend:**
 ```bash
 cd frontend
 npm run test:coverage
 # Coverage report in coverage/index.html
 ```
 
-## Development Setup
+Test coverage includes:
+- File I/O operations (JSON and properties files)
+- Input validation (MQTT topics, IPv4 addresses, ports, serial settings)
+- REST API endpoints
+- Component rendering and user interactions
+- Complete workflows (save, reboot, network configuration)
+- Error handling and edge cases
+
+## Quick Start
 
 ### Prerequisites
 
 - Java 17+
-- Node.js 20+
+- Node.js 20.18.3 (via nvm recommended)
 - Maven 3.9+
 - Docker & Docker Compose
 
-### Backend Development
+### Development Mode (Recommended for Local Development)
 
-**Development Mode** (uses local resource files):
+**Quick Start:**
+```bash
+./START_APP.sh
+```
+
+This script will:
+1. Start the backend on `http://localhost:8080`
+2. Start the frontend on `http://localhost:3001`
+3. Use development data from `backend/src/main/resources/dev-data/`
+
+**Stop:**
+```bash
+./STOP_APP.sh
+```
+
+### Manual Development Setup
+
+**Backend:**
 ```bash
 cd backend
 mvn spring-boot:run -s settings.xml
 ```
+- API available at `http://localhost:8080`
+- Uses local resource files (dev mode)
 
-**Production Mode** (uses `/opt/dm/` paths):
+**Frontend:**
 ```bash
-cd backend
-mvn spring-boot:run -s settings.xml -Dspring.profiles.active=prod
-```
+# Load nvm and use Node 20.18.3
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+nvm use 20.18.3
 
-API will be available at `http://localhost:8080`
-
-**Note:** Development mode uses sample data files from `src/main/resources/dev-data/` so you don't need to create `/opt/dm/` directories during development.
-
-### Frontend Development
-
-```bash
 cd frontend
 npm install
 npm run dev
 ```
+- UI available at `http://localhost:3001`
 
-Frontend will be available at `http://localhost:3000`
+**Note:** Development mode uses sample data files from `src/main/resources/dev-data/` so you don't need to create `/opt/dm/` directories during development.
 
 ## Production Deployment
 
@@ -168,15 +204,32 @@ The following host paths are mounted:
 
 - `GET /api/devices` - Get devices.json configuration
 - `GET /api/config/properties` - Get config.properties
-- `GET /api/device/{deviceName}` - Get device-specific config
-- `POST /api/save` - Save configuration
+- `GET /api/device/{deviceName}` - Get device-specific config (IBAC, S900, etc.)
+- `GET /api/network` - Get network configuration
+- `POST /api/save` - Save configuration (devices or config.properties)
 - `POST /api/device/{deviceName}` - Save device-specific config
+- `POST /api/network` - Save network config and trigger reboot
 - `POST /api/reboot` - Trigger system reboot
+
+### Quick API Test
+
+```bash
+# Get device manager config
+curl http://localhost:8080/api/devices
+
+# Get network config
+curl http://localhost:8080/api/network
+
+# Save configuration
+curl -X POST http://localhost:8080/api/save \
+  -H "Content-Type: application/json" \
+  -d '{"configType":"devices","data":{"deviceManagerKey":"test","deviceManagerName":"Test"}}'
+```
 
 ## Validation Rules
 
 ### devices.json
-- `deviceManagerKey`: Max 20 chars, valid MQTT topic characters only (no spaces, #, +)
+- `deviceManagerKey`: Max 20 chars, valid MQTT topic (no /, #, +)
 - `deviceManagerName`: Max 50 chars, spaces allowed
 
 ### config.properties
@@ -185,9 +238,22 @@ The following host paths are mounted:
 
 ### Device Configurations
 - **IBAC/WXT53X**: Serial port settings with dropdown validation
+  - Serial ports: ttyS0, ttyS1
+  - Baud rates: 9600, 19200, 38400, 57600, 115200
+  - Parity: None, Even, Odd
+  - Data bits: 7, 8
+  - Stop bits: 1, 2
+  - Serial port type: RS232, RS485
 - **S900**: IPv4 address + port number (1-65535)
 - **oritestgtdb**: IPv4 address
 - All devices: name field (max 50 chars)
+
+### Network Configuration
+- **Interface**: Any valid interface name (eth0, enp0s3, etc.)
+- **Method**: DHCP or Static
+- **IP Address**: Valid IPv4 (required for static)
+- **Netmask**: Valid IPv4 (required for static)
+- **Gateway**: Valid IPv4 (optional)
 
 ## Test-Driven Development
 
@@ -204,12 +270,55 @@ See the `Architecture/` directory for:
 - `container.mermaid` - Container diagram
 - `component.mermaid` - Component diagram
 
+## Documentation
+
+- **[QUICK_START_GUIDE.md](QUICK_START_GUIDE.md)** - Quick start, features, and troubleshooting
+- **[E2E_TEST_GUIDE.md](E2E_TEST_GUIDE.md)** - Complete E2E testing guide
+- **[TDD_plan.md](TDD_plan.md)** - Test-driven development plan
+- **[Requirement Specs.md](Requirement%20Specs.md)** - Requirements specification
+- **Architecture/** - System architecture diagrams (Mermaid)
+
+## Troubleshooting
+
+### Port Already in Use
+```bash
+# Check and kill process on port 8080 (backend)
+kill $(lsof -ti:8080)
+
+# Check and kill process on port 3001 (frontend)
+kill $(lsof -ti:3001)
+```
+
+### Node Version Issues
+```bash
+# Verify Node version
+node --version  # Should be v20.18.3
+
+# Switch to correct version
+nvm use 20.18.3
+```
+
+### Backend Not Finding Config Files
+- Make sure you're running from the `backend/` directory
+- Development mode uses `src/main/resources/dev-data/`
+- Production mode uses `/opt/dm/` (requires actual files)
+
+### Frontend Build Issues
+```bash
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+```
+
+For more troubleshooting, see [QUICK_START_GUIDE.md](QUICK_START_GUIDE.md)
+
 ## Contributing
 
 1. Write tests first (following `TDD_plan.md`)
 2. Implement features to pass tests
-3. Ensure all tests pass before committing
+3. Run all tests (unit + E2E) before committing
 4. Maintain test coverage above 80%
+5. Follow Material UI design patterns
 
 ## License
 
