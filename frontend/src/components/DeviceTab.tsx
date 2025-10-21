@@ -9,8 +9,10 @@ import {
   Alert,
   Box,
   Typography,
-  Stack
+  Stack,
+  Paper
 } from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
 import { getDeviceConfig } from '../api/configApi';
 import {
   validateDeviceName,
@@ -109,87 +111,111 @@ const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
 
   // Render serial device configuration (IBAC, WXT53X)
   const renderSerialConfig = () => (
-    <Stack spacing={2}>
+    <Stack spacing={3}>
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        <FormControl sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <InputLabel>Serial Port</InputLabel>
-          <Select
-            value={config.address || 'ttyS0'}
-            onChange={(e) => updateField('address', e.target.value)}
-            label="Serial Port"
-          >
-            <MenuItem value="ttyS0">ttyS0</MenuItem>
-            <MenuItem value="ttyS1">ttyS1</MenuItem>
-          </Select>
-        </FormControl>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+            Serial Port
+          </Typography>
+          <FormControl fullWidth>
+            <Select
+              value={config.address || 'ttyS0'}
+              onChange={(e) => updateField('address', e.target.value)}
+              sx={{ bgcolor: 'white' }}
+            >
+              <MenuItem value="ttyS0">ttyS0</MenuItem>
+              <MenuItem value="ttyS1">ttyS1</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
 
-        <FormControl sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <InputLabel>Baud Rate</InputLabel>
-          <Select
-            value={config.speed || '9600'}
-            onChange={(e) => updateField('speed', e.target.value)}
-            label="Baud Rate"
-          >
-            <MenuItem value="9600">9600</MenuItem>
-            <MenuItem value="19200">19200</MenuItem>
-            <MenuItem value="38400">38400</MenuItem>
-            <MenuItem value="57600">57600</MenuItem>
-            <MenuItem value="115200">115200</MenuItem>
-          </Select>
-        </FormControl>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+            Baud Rate
+          </Typography>
+          <FormControl fullWidth>
+            <Select
+              value={config.speed || '9600'}
+              onChange={(e) => updateField('speed', e.target.value)}
+              sx={{ bgcolor: 'white' }}
+            >
+              <MenuItem value="9600">9600</MenuItem>
+              <MenuItem value="19200">19200</MenuItem>
+              <MenuItem value="38400">38400</MenuItem>
+              <MenuItem value="57600">57600</MenuItem>
+              <MenuItem value="115200">115200</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        <FormControl sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <InputLabel>Data Bits</InputLabel>
-          <Select
-            value={config.bits || '8'}
-            onChange={(e) => updateField('bits', e.target.value)}
-            label="Data Bits"
-          >
-            <MenuItem value="7">7</MenuItem>
-            <MenuItem value="8">8</MenuItem>
-          </Select>
-        </FormControl>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+            Data Bits
+          </Typography>
+          <FormControl fullWidth>
+            <Select
+              value={config.bits || '8'}
+              onChange={(e) => updateField('bits', e.target.value)}
+              sx={{ bgcolor: 'white' }}
+            >
+              <MenuItem value="7">7</MenuItem>
+              <MenuItem value="8">8</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
 
-        <FormControl sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <InputLabel>Stop Bits</InputLabel>
-          <Select
-            value={config.stopBits || '1'}
-            onChange={(e) => updateField('stopBits', e.target.value)}
-            label="Stop Bits"
-          >
-            <MenuItem value="1">1</MenuItem>
-            <MenuItem value="2">2</MenuItem>
-          </Select>
-        </FormControl>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+            Stop Bits
+          </Typography>
+          <FormControl fullWidth>
+            <Select
+              value={config.stopBits || '1'}
+              onChange={(e) => updateField('stopBits', e.target.value)}
+              sx={{ bgcolor: 'white' }}
+            >
+              <MenuItem value="1">1</MenuItem>
+              <MenuItem value="2">2</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        <FormControl sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <InputLabel>Parity</InputLabel>
-          <Select
-            value={config.parity || 'None'}
-            onChange={(e) => updateField('parity', e.target.value)}
-            label="Parity"
-          >
-            <MenuItem value="None">None</MenuItem>
-            <MenuItem value="Even">Even</MenuItem>
-            <MenuItem value="Odd">Odd</MenuItem>
-          </Select>
-        </FormControl>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+            Parity
+          </Typography>
+          <FormControl fullWidth>
+            <Select
+              value={config.parity || 'None'}
+              onChange={(e) => updateField('parity', e.target.value)}
+              sx={{ bgcolor: 'white' }}
+            >
+              <MenuItem value="None">None</MenuItem>
+              <MenuItem value="Even">Even</MenuItem>
+              <MenuItem value="Odd">Odd</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
 
-        <FormControl sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <InputLabel>Serial Port Type</InputLabel>
-          <Select
-            value={config.serialPortType || 'RS232'}
-            onChange={(e) => updateField('serialPortType', e.target.value)}
-            label="Serial Port Type"
-          >
-            <MenuItem value="RS232">RS232</MenuItem>
-            <MenuItem value="RS485">RS485</MenuItem>
-          </Select>
-        </FormControl>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+            Serial Port Type
+          </Typography>
+          <FormControl fullWidth>
+            <Select
+              value={config.serialPortType || 'RS232'}
+              onChange={(e) => updateField('serialPortType', e.target.value)}
+              sx={{ bgcolor: 'white' }}
+            >
+              <MenuItem value="RS232">RS232</MenuItem>
+              <MenuItem value="RS485">RS485</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
     </Stack>
   );
@@ -197,68 +223,178 @@ const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
   // Render S900 configuration
   const renderS900Config = () => (
     <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-      <TextField
-        sx={{ flex: '1 1 200px', minWidth: '200px' }}
-        label="IP Address"
-        value={config.address || ''}
-        onChange={(e) => updateField('address', e.target.value)}
-        error={!!errors.address}
-        helperText={errors.address || 'S900 device IP address'}
-      />
+      <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+          IP Address
+        </Typography>
+        <TextField
+          fullWidth
+          placeholder="192.168.1.50"
+          value={config.address || ''}
+          onChange={(e) => updateField('address', e.target.value)}
+          error={!!errors.address}
+          helperText={errors.address || 'S900 device IP address'}
+          sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'white' } }}
+        />
+      </Box>
 
-      <TextField
-        sx={{ flex: '1 1 200px', minWidth: '200px' }}
-        label="Port Number"
-        type="number"
-        value={config.portNumber || ''}
-        onChange={(e) => updateField('portNumber', parseInt(e.target.value) || '')}
-        error={!!errors.portNumber}
-        helperText={errors.portNumber || 'S900 device port number'}
-      />
+      <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+          Port Number
+        </Typography>
+        <TextField
+          fullWidth
+          placeholder="502"
+          type="number"
+          value={config.portNumber || ''}
+          onChange={(e) => updateField('portNumber', parseInt(e.target.value) || '')}
+          error={!!errors.portNumber}
+          helperText={errors.portNumber || 'S900 device port number'}
+          sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'white' } }}
+        />
+      </Box>
     </Box>
   );
 
   // Render oritestgtdb configuration
   const renderOritestgtdbConfig = () => (
-    <TextField
-      fullWidth
-      label="IP Address"
-      value={config.address || ''}
-      onChange={(e) => updateField('address', e.target.value)}
-      error={!!errors.address}
-      helperText={errors.address || 'OriTestGTDB database IP address'}
-    />
+    <Box>
+      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+        IP Address
+      </Typography>
+      <TextField
+        fullWidth
+        placeholder="192.168.1.10"
+        value={config.address || ''}
+        onChange={(e) => updateField('address', e.target.value)}
+        error={!!errors.address}
+        helperText={errors.address || 'OriTestGTDB database IP address'}
+        sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'white' } }}
+      />
+    </Box>
   );
+
+  const getDeviceTitle = () => {
+    if (deviceName.toUpperCase() === 'IBAC') return 'IBAC2 Device Configuration';
+    if (deviceName.toUpperCase() === 'S900') return 'S900 Device Configuration';
+    if (deviceName.toUpperCase() === 'ORITESTGTDB') return 'GTD Module-B Configuration';
+    if (deviceName.toUpperCase() === 'WXT53X') return 'WXT53X Weather Station';
+    return `${deviceName} Configuration`;
+  };
+
+  const getConfigTips = () => {
+    if (deviceName.toUpperCase() === 'IBAC' || deviceName.toUpperCase() === 'WXT53X') {
+      return [
+        'Ensure the serial port matches the physical connection',
+        'Verify baud rate matches the device specifications',
+        'Check that parity and stop bits are correctly configured'
+      ];
+    }
+    if (deviceName.toUpperCase() === 'S900') {
+      return [
+        'Ensure the S900 device is on the same network',
+        'Default Modbus TCP port is typically 502',
+        'Verify the device IP address is static or reserved in DHCP'
+      ];
+    }
+    if (deviceName.toUpperCase() === 'ORITESTGTDB') {
+      return [
+        'Database must be accessible from this device',
+        'Ensure network connectivity to the database server',
+        'Verify firewall rules allow database connections'
+      ];
+    }
+    return [
+      'Configure device-specific settings carefully',
+      'Test connectivity after configuration changes',
+      'Changes take effect after saving and restarting'
+    ];
+  };
 
   return (
     <Box>
-      <Typography variant="h6" gutterBottom>
-        {deviceName} Configuration
-      </Typography>
-      <Typography variant="body2" color="text.secondary" paragraph>
-        Configure {deviceName} device settings.
-      </Typography>
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          bgcolor: 'white',
+          borderRadius: 2,
+          overflow: 'hidden',
+          border: '1px solid #e5e7eb'
+        }}
+      >
+        {/* Green Header */}
+        <Box 
+          sx={{ 
+            bgcolor: '#10b981', 
+            color: 'white', 
+            py: 2.5, 
+            px: 3 
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            {getDeviceTitle()}
+          </Typography>
+        </Box>
 
-      {message && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {message}
-        </Alert>
-      )}
+        {/* Form Content */}
+        <Box sx={{ p: 3 }}>
+          {message && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {message}
+            </Alert>
+          )}
 
-      <Box sx={{ mb: 3 }}>
-        {(deviceName.toUpperCase() === 'IBAC' || deviceName.toUpperCase() === 'WXT53X') && renderSerialConfig()}
-        {deviceName.toUpperCase() === 'S900' && renderS900Config()}
-        {deviceName.toUpperCase() === 'ORITESTGTDB' && renderOritestgtdbConfig()}
-      </Box>
+          <Box sx={{ mb: 3 }}>
+            {(deviceName.toUpperCase() === 'IBAC' || deviceName.toUpperCase() === 'WXT53X') && renderSerialConfig()}
+            {deviceName.toUpperCase() === 'S900' && renderS900Config()}
+            {deviceName.toUpperCase() === 'ORITESTGTDB' && renderOritestgtdbConfig()}
+          </Box>
 
-      <TextField
-        fullWidth
-        label="Device Name"
-        value={config.name || ''}
-        onChange={(e) => updateField('name', e.target.value)}
-        error={!!errors.name}
-        helperText={errors.name || 'Human-readable name for this device (max 50 characters)'}
-      />
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+              Device Name
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder={`My ${deviceName} Device`}
+              value={config.name || ''}
+              onChange={(e) => updateField('name', e.target.value)}
+              error={!!errors.name}
+              helperText={errors.name || 'Human-readable name for this device (max 50 characters)'}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  bgcolor: 'white',
+                }
+              }}
+            />
+          </Box>
+
+          {/* Configuration Tips Box */}
+          <Alert 
+            icon={<InfoIcon />}
+            severity="info"
+            sx={{ 
+              mt: 3,
+              bgcolor: '#dbeafe',
+              color: '#1e40af',
+              '& .MuiAlert-icon': {
+                color: '#3b82f6'
+              },
+              border: '1px solid #93c5fd',
+              borderRadius: 2
+            }}
+          >
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              Configuration Tips
+            </Typography>
+            <Box component="ul" sx={{ m: 0, pl: 2.5, '& li': { mb: 0.5 } }}>
+              {getConfigTips().map((tip, index) => (
+                <li key={index}>{tip}</li>
+              ))}
+            </Box>
+          </Alert>
+        </Box>
+      </Paper>
     </Box>
   );
 });

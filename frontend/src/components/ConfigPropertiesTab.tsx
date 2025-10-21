@@ -1,5 +1,6 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { TextField, CircularProgress, Alert, Box, Typography } from '@mui/material';
+import { TextField, CircularProgress, Alert, Box, Typography, Paper } from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
 import { getConfigProperties } from '../api/configApi';
 import { validateIPv4, validatePort } from '../utils/validation';
 
@@ -84,39 +85,104 @@ const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) =>
 
   return (
     <Box>
-      <Typography variant="h6" gutterBottom>
-        Configuration Properties
-      </Typography>
-      <Typography variant="body2" color="text.secondary" paragraph>
-        Configure MQTT broker connection settings.
-      </Typography>
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          bgcolor: 'white',
+          borderRadius: 2,
+          overflow: 'hidden',
+          border: '1px solid #e5e7eb'
+        }}
+      >
+        {/* Green Header */}
+        <Box 
+          sx={{ 
+            bgcolor: '#10b981', 
+            color: 'white', 
+            py: 2.5, 
+            px: 3 
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            MQTT Broker Configuration
+          </Typography>
+        </Box>
 
-      {message && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {message}
-        </Alert>
-      )}
+        {/* Form Content */}
+        <Box sx={{ p: 3 }}>
+          {message && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {message}
+            </Alert>
+          )}
 
-      <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 } }}>
-        <TextField
-          fullWidth
-          label="MQTT Broker IP"
-          value={mqttBroker}
-          onChange={(e) => setMqttBroker(e.target.value)}
-          error={!!errors.mqttBroker}
-          helperText={errors.mqttBroker || 'IPv4 address of the MQTT broker'}
-        />
+          <Box component="form" sx={{ '& .MuiTextField-root': { mb: 3 } }}>
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                MQTT Broker IP
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="192.168.1.100"
+                value={mqttBroker}
+                onChange={(e) => setMqttBroker(e.target.value)}
+                error={!!errors.mqttBroker}
+                helperText={errors.mqttBroker || 'IPv4 address of the MQTT broker'}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    bgcolor: 'white',
+                  }
+                }}
+              />
+            </Box>
 
-        <TextField
-          fullWidth
-          label="MQTT Port"
-          type="number"
-          value={mqttPort}
-          onChange={(e) => setMqttPort(e.target.value)}
-          error={!!errors.mqttPort}
-          helperText={errors.mqttPort || 'Port number for MQTT broker (default: 1883)'}
-        />
-      </Box>
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                MQTT Port
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="1883"
+                type="number"
+                value={mqttPort}
+                onChange={(e) => setMqttPort(e.target.value)}
+                error={!!errors.mqttPort}
+                helperText={errors.mqttPort || 'Port number for MQTT broker (default: 1883)'}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    bgcolor: 'white',
+                  }
+                }}
+              />
+            </Box>
+          </Box>
+
+          {/* Configuration Tips Box */}
+          <Alert 
+            icon={<InfoIcon />}
+            severity="info"
+            sx={{ 
+              mt: 3,
+              bgcolor: '#dbeafe',
+              color: '#1e40af',
+              '& .MuiAlert-icon': {
+                color: '#3b82f6'
+              },
+              border: '1px solid #93c5fd',
+              borderRadius: 2
+            }}
+          >
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              Configuration Tips
+            </Typography>
+            <Box component="ul" sx={{ m: 0, pl: 2.5, '& li': { mb: 0.5 } }}>
+              <li>Ensure the MQTT broker is accessible from this device</li>
+              <li>Default MQTT port is 1883 (unencrypted) or 8883 (TLS)</li>
+              <li>Changes take effect after saving and restarting</li>
+            </Box>
+          </Alert>
+        </Box>
+      </Paper>
     </Box>
   );
 });

@@ -9,8 +9,10 @@ import {
   Typography,
   CircularProgress,
   Alert,
-  Box
+  Box,
+  Paper
 } from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
 import { getNetworkConfig } from '../api/configApi';
 import { validateIPv4 } from '../utils/validation';
 
@@ -113,76 +115,165 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
 
   return (
     <Box>
-      <Typography variant="h6" gutterBottom>
-        Debian Static IP Configuration
-      </Typography>
-      <Typography variant="body2" color="text.secondary" paragraph>
-        Configure the network interface settings for this device.
-      </Typography>
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          bgcolor: 'white',
+          borderRadius: 2,
+          overflow: 'hidden',
+          border: '1px solid #e5e7eb'
+        }}
+      >
+        {/* Green Header */}
+        <Box 
+          sx={{ 
+            bgcolor: '#10b981', 
+            color: 'white', 
+            py: 2.5, 
+            px: 3 
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Network Interface Configuration
+          </Typography>
+        </Box>
 
-      {message && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {message}
-        </Alert>
-      )}
+        {/* Form Content */}
+        <Box sx={{ p: 3 }}>
+          {message && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {message}
+            </Alert>
+          )}
 
-      <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 } }}>
-        <TextField
-          fullWidth
-          label="Interface Name"
-          value={interfaceName}
-          onChange={(e) => setInterfaceName(e.target.value)}
-          helperText="Network interface name (e.g., eth0, enp0s3)"
-        />
+          <Alert severity="warning" sx={{ mb: 3 }}>
+            <strong>Warning:</strong> Changing network settings will cause the system to reboot.
+            Make sure you can access the device on the new IP address.
+          </Alert>
 
-        <FormControl component="fieldset" sx={{ mb: 2 }}>
-          <FormLabel component="legend">Configuration Method</FormLabel>
-          <RadioGroup
-            row
-            value={method}
-            onChange={(e) => setMethod(e.target.value)}
+          <Box component="form" sx={{ '& .MuiTextField-root': { mb: 3 } }}>
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Interface Name
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="eth0"
+                value={interfaceName}
+                onChange={(e) => setInterfaceName(e.target.value)}
+                helperText="Network interface name (e.g., eth0, enp0s3)"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    bgcolor: 'white',
+                  }
+                }}
+              />
+            </Box>
+
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Configuration Method
+              </Typography>
+              <FormControl component="fieldset">
+                <RadioGroup
+                  row
+                  value={method}
+                  onChange={(e) => setMethod(e.target.value)}
+                >
+                  <FormControlLabel value="static" control={<Radio />} label="Static IP" />
+                  <FormControlLabel value="dhcp" control={<Radio />} label="DHCP" />
+                </RadioGroup>
+              </FormControl>
+            </Box>
+
+            {method === 'static' && (
+              <>
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                    IP Address
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="192.168.1.100"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    error={!!errors.address}
+                    helperText={errors.address || 'Static IP address for this device'}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        bgcolor: 'white',
+                      }
+                    }}
+                  />
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                    Netmask
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="255.255.255.0"
+                    value={netmask}
+                    onChange={(e) => setNetmask(e.target.value)}
+                    error={!!errors.netmask}
+                    helperText={errors.netmask || 'Network netmask (e.g., 255.255.255.0)'}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        bgcolor: 'white',
+                      }
+                    }}
+                  />
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                    Gateway
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="192.168.1.1"
+                    value={gateway}
+                    onChange={(e) => setGateway(e.target.value)}
+                    error={!!errors.gateway}
+                    helperText={errors.gateway || 'Default gateway (optional)'}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        bgcolor: 'white',
+                      }
+                    }}
+                  />
+                </Box>
+              </>
+            )}
+          </Box>
+
+          {/* Configuration Tips Box */}
+          <Alert 
+            icon={<InfoIcon />}
+            severity="info"
+            sx={{ 
+              mt: 3,
+              bgcolor: '#dbeafe',
+              color: '#1e40af',
+              '& .MuiAlert-icon': {
+                color: '#3b82f6'
+              },
+              border: '1px solid #93c5fd',
+              borderRadius: 2
+            }}
           >
-            <FormControlLabel value="static" control={<Radio />} label="Static IP" />
-            <FormControlLabel value="dhcp" control={<Radio />} label="DHCP" />
-          </RadioGroup>
-        </FormControl>
-
-        {method === 'static' && (
-          <>
-            <TextField
-              fullWidth
-              label="IP Address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              error={!!errors.address}
-              helperText={errors.address || 'Static IP address for this device'}
-            />
-
-            <TextField
-              fullWidth
-              label="Netmask"
-              value={netmask}
-              onChange={(e) => setNetmask(e.target.value)}
-              error={!!errors.netmask}
-              helperText={errors.netmask || 'Network netmask (e.g., 255.255.255.0)'}
-            />
-
-            <TextField
-              fullWidth
-              label="Gateway"
-              value={gateway}
-              onChange={(e) => setGateway(e.target.value)}
-              error={!!errors.gateway}
-              helperText={errors.gateway || 'Default gateway (optional)'}
-            />
-          </>
-        )}
-      </Box>
-
-      <Alert severity="warning" sx={{ mt: 2 }}>
-        <strong>Warning:</strong> Changing network settings will cause the system to reboot.
-        Make sure you can access the device on the new IP address.
-      </Alert>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              Configuration Tips
+            </Typography>
+            <Box component="ul" sx={{ m: 0, pl: 2.5, '& li': { mb: 0.5 } }}>
+              <li>Static IP is recommended for production environments</li>
+              <li>Ensure the IP address is not already in use on your network</li>
+              <li>System will reboot automatically after saving changes</li>
+            </Box>
+          </Alert>
+        </Box>
+      </Paper>
     </Box>
   );
 });
