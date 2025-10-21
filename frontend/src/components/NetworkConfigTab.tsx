@@ -25,16 +25,16 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
   const { onDataChange, onValidationChange } = props;
   const { configData, setConfigData } = useConfig();
   
-  // Initialize from context or defaults
-  const [method, setMethod] = useState(configData.network?.method || 'static');
-  const [interfaceName, setInterfaceName] = useState(configData.network?.interface || 'eth0');
-  const [address, setAddress] = useState(configData.network?.address || '');
-  const [netmask, setNetmask] = useState(configData.network?.netmask || '');
-  const [gateway, setGateway] = useState(configData.network?.gateway || '');
-  const [loading, setLoading] = useState(configData.network === null);
+  // Initialize local state
+  const [method, setMethod] = useState('static');
+  const [interfaceName, setInterfaceName] = useState('eth0');
+  const [address, setAddress] = useState('');
+  const [netmask, setNetmask] = useState('');
+  const [gateway, setGateway] = useState('');
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [originalData, setOriginalData] = useState<any>(configData.network);
+  const [originalData, setOriginalData] = useState<any>(null);
 
   useImperativeHandle(ref, () => ({
     getData: () => ({
@@ -46,9 +46,20 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
     })
   }));
 
+  // Restore state from context when component mounts
   useEffect(() => {
-    // Only load from API if we don't have data in context
-    if (configData.network === null) {
+    if (configData.network !== null) {
+      // Restore from context
+      setInterfaceName(configData.network.interface || 'eth0');
+      setMethod(configData.network.method || 'static');
+      setAddress(configData.network.address || '');
+      setNetmask(configData.network.netmask || '');
+      setGateway(configData.network.gateway || '');
+      // Use the stored original data for change detection
+      setOriginalData(configData.network._original || configData.network);
+      setLoading(false);
+    } else {
+      // Load from API
       loadData();
     }
   }, []);
@@ -60,9 +71,10 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
       method,
       address,
       netmask,
-      gateway
+      gateway,
+      _original: originalData // Preserve original data for change detection
     });
-  }, [method, interfaceName, address, netmask, gateway]);
+  }, [method, interfaceName, address, netmask, gateway, originalData]);
 
   const loadData = async () => {
     try {
@@ -74,8 +86,11 @@ const NetworkConfigTab = forwardRef((props: NetworkConfigTabProps, ref) => {
       setNetmask(data.netmask || '');
       setGateway(data.gateway || '');
       setOriginalData(data);
-      // Save to context
-      setConfigData('network', data);
+      // Save to context with original data preserved
+      setConfigData('network', {
+        ...data,
+        _original: data
+      });
     } catch (error: any) {
       setMessage(`Failed to load: ${error.message}`);
     } finally {

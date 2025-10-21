@@ -3,6 +3,7 @@ import { TextField, CircularProgress, Alert, Box, Typography, Paper } from '@mui
 import InfoIcon from '@mui/icons-material/Info';
 import { getConfigProperties } from '../api/configApi';
 import { validateIPv4, validatePort } from '../utils/validation';
+import { useConfig } from '../context/ConfigContext';
 
 interface ConfigPropertiesTabProps {
   onDataChange: (hasChanges: boolean) => void;
@@ -11,6 +12,8 @@ interface ConfigPropertiesTabProps {
 
 const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) => {
   const { onDataChange, onValidationChange } = props;
+  const { configData, setConfigData } = useConfig();
+  
   const [mqttBroker, setMqttBroker] = useState('');
   const [mqttPort, setMqttPort] = useState('');
   const [mqttUsername, setMqttUsername] = useState('');
@@ -29,9 +32,32 @@ const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) =>
     })
   }));
 
+  // Restore state from context when component mounts
   useEffect(() => {
-    loadData();
+    if (configData.config !== null) {
+      // Restore from context
+      setMqttBroker(configData.config.broker || '');
+      setMqttPort(configData.config.port || '');
+      setMqttUsername(configData.config.username || '');
+      setMqttPassword(configData.config.password || '');
+      setOriginalData((configData.config as any)._original || configData.config);
+      setLoading(false);
+    } else {
+      // Load from API
+      loadData();
+    }
   }, []);
+
+  // Save current state to context whenever it changes
+  useEffect(() => {
+    setConfigData('config', {
+      broker: mqttBroker,
+      port: mqttPort,
+      username: mqttUsername,
+      password: mqttPassword,
+      _original: originalData
+    } as any);
+  }, [mqttBroker, mqttPort, mqttUsername, mqttPassword, originalData]);
 
   useEffect(() => {
     validateForm();
@@ -47,6 +73,14 @@ const ConfigPropertiesTab = forwardRef((props: ConfigPropertiesTabProps, ref) =>
       setMqttUsername(data['mqtt.username'] || '');
       setMqttPassword(data['mqtt.password'] || '');
       setOriginalData(data);
+      // Save to context with original data preserved
+      setConfigData('config', {
+        broker: data['mqtt.broker'] || '',
+        port: data['mqtt.port'] || '',
+        username: data['mqtt.username'] || '',
+        password: data['mqtt.password'] || '',
+        _original: data
+      } as any);
     } catch (error: any) {
       setMessage(`Failed to load: ${error.message}`);
     } finally {

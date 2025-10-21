@@ -3,6 +3,7 @@ import { TextField, CircularProgress, Alert, Box, Typography, Paper } from '@mui
 import InfoIcon from '@mui/icons-material/Info';
 import { getDevicesConfig } from '../api/configApi';
 import { validateMQTTTopic } from '../utils/validation';
+import { useConfig } from '../context/ConfigContext';
 
 interface DevicesTabProps {
   onDataChange: (hasChanges: boolean) => void;
@@ -11,6 +12,8 @@ interface DevicesTabProps {
 
 const DevicesTab = forwardRef((props: DevicesTabProps, ref) => {
   const { onDataChange, onValidationChange } = props;
+  const { configData, setConfigData } = useConfig();
+  
   const [deviceManagerKey, setDeviceManagerKey] = useState('');
   const [deviceManagerName, setDeviceManagerName] = useState('');
   const [loading, setLoading] = useState(true);
@@ -25,9 +28,28 @@ const DevicesTab = forwardRef((props: DevicesTabProps, ref) => {
     })
   }));
 
+  // Restore state from context when component mounts
   useEffect(() => {
-    loadData();
+    if (configData.devices !== null) {
+      // Restore from context
+      setDeviceManagerKey(configData.devices.key || '');
+      setDeviceManagerName(configData.devices.name || '');
+      setOriginalData((configData.devices as any)._original || configData.devices);
+      setLoading(false);
+    } else {
+      // Load from API
+      loadData();
+    }
   }, []);
+
+  // Save current state to context whenever it changes
+  useEffect(() => {
+    setConfigData('devices', {
+      key: deviceManagerKey,
+      name: deviceManagerName,
+      _original: originalData
+    } as any);
+  }, [deviceManagerKey, deviceManagerName, originalData]);
 
   useEffect(() => {
     validateForm();
@@ -41,6 +63,12 @@ const DevicesTab = forwardRef((props: DevicesTabProps, ref) => {
       setDeviceManagerKey(data.deviceManagerKey || '');
       setDeviceManagerName(data.deviceManagerName || '');
       setOriginalData(data);
+      // Save to context with original data preserved
+      setConfigData('devices', {
+        key: data.deviceManagerKey || '',
+        name: data.deviceManagerName || '',
+        _original: data
+      } as any);
     } catch (error: any) {
       setMessage(`Failed to load: ${error.message}`);
     } finally {

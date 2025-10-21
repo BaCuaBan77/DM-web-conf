@@ -7,6 +7,7 @@ interface NetworkConfig {
   address: string;
   netmask: string;
   gateway: string;
+  _original?: any; // Store original data for change detection
 }
 
 interface DevicesConfig {

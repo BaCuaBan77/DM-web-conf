@@ -18,6 +18,7 @@ import {
   validateIPv4,
   validatePortNumber
 } from '../utils/validation';
+import { useConfig } from '../context/ConfigContext';
 
 interface DeviceTabProps {
   deviceName: string;
@@ -36,8 +37,22 @@ const parityToStorage = (parity: string): string => {
   return map[parity] || parity;
 };
 
+// Map device names to context keys
+const getContextKey = (deviceName: string): 'ibac' | 's900' | 'ori' | 'wxt' => {
+  const nameMap: { [key: string]: 'ibac' | 's900' | 'ori' | 'wxt' } = {
+    'IBAC': 'ibac',
+    'S900': 's900',
+    'oritestgtdb': 'ori',
+    'wxt53x': 'wxt'
+  };
+  return nameMap[deviceName] || 'ibac';
+};
+
 const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
   const { deviceName, onDataChange, onValidationChange } = props;
+  const { configData, setConfigData } = useConfig();
+  const contextKey = getContextKey(deviceName);
+  
   const [config, setConfig] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
@@ -55,9 +70,27 @@ const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
     }
   }));
 
+  // Restore state from context when component mounts
   useEffect(() => {
-    loadData();
+    const contextData = configData[contextKey];
+    if (contextData !== null) {
+      // Restore from context
+      setConfig(contextData);
+      setOriginalData((contextData as any)._original || contextData);
+      setLoading(false);
+    } else {
+      // Load from API
+      loadData();
+    }
   }, [deviceName]);
+
+  // Save current state to context whenever it changes
+  useEffect(() => {
+    setConfigData(contextKey, {
+      ...config,
+      _original: originalData
+    });
+  }, [config, originalData, contextKey]);
 
   useEffect(() => {
     validateForm();
@@ -76,6 +109,11 @@ const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
       
       setConfig(data);
       setOriginalData(data);
+      // Save to context with original data preserved
+      setConfigData(contextKey, {
+        ...data,
+        _original: data
+      });
     } catch (error: any) {
       setMessage(`Failed to load: ${error.message}`);
     } finally {
