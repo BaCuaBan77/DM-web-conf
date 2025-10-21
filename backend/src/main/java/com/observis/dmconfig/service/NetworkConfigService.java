@@ -41,16 +41,16 @@ public class NetworkConfigService {
         // Override interface with auto-detected one (ignore client-provided value)
         config.put("interface", detectNetworkInterface());
         
-        // Validate IP addresses
+        // Validate IP addresses (only if not empty - empty is allowed for DHCP)
         String address = config.get("address");
         String netmask = config.get("netmask");
         String gateway = config.get("gateway");
 
-        if (address != null && !validationService.validateIPv4(address)) {
+        if (address != null && !address.isEmpty() && !validationService.validateIPv4(address)) {
             throw new IllegalArgumentException("Invalid IP address");
         }
 
-        if (netmask != null && !validationService.validateIPv4(netmask)) {
+        if (netmask != null && !netmask.isEmpty() && !validationService.validateIPv4(netmask)) {
             throw new IllegalArgumentException("Invalid netmask");
         }
 
