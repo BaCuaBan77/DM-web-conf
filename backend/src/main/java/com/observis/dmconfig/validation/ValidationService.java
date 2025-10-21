@@ -24,10 +24,10 @@ public class ValidationService {
     // MQTT topic: allows any characters except /, #, and +
     private static final Pattern MQTT_TOPIC_PATTERN = Pattern.compile("^[^\\/#+]+$");
     
-    private static final List<String> VALID_SERIAL_PORTS = Arrays.asList("ttyS0", "ttyS1");
+    private static final List<String> VALID_SERIAL_PORTS = Arrays.asList("ttyS0", "ttyS1", "/dev/ttyS0", "/dev/ttyS1");
     private static final List<String> VALID_BAUD_RATES = Arrays.asList("9600", "19200", "38400", "57600", "115200");
     private static final List<String> VALID_SERIAL_PORT_TYPES = Arrays.asList("RS232", "RS485");
-    private static final List<String> VALID_PARITY_VALUES = Arrays.asList("None", "Even", "Odd");
+    private static final List<String> VALID_PARITY_VALUES = Arrays.asList("None", "Even", "Odd", "N", "E", "O");
     private static final List<String> VALID_DATA_BITS = Arrays.asList("7", "8");
     private static final List<String> VALID_STOP_BITS = Arrays.asList("1", "2");
 
