@@ -1,14 +1,16 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import {
   AppBar,
   Toolbar,
   Typography,
-  Tabs,
-  Tab,
   Button,
-  Container,
   Box,
-  Paper,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
   Snackbar,
   Alert,
   Dialog,
@@ -18,10 +20,16 @@ import {
   DialogActions,
   createTheme,
   ThemeProvider,
-  CssBaseline
+  CssBaseline,
+  Divider
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import DescriptionIcon from '@mui/icons-material/Description';
+import SettingsIcon from '@mui/icons-material/Settings';
+import RadioIcon from '@mui/icons-material/Radio';
+import WifiIcon from '@mui/icons-material/Wifi';
+import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import DevicesTab from './components/DevicesTab';
 import ConfigPropertiesTab from './components/ConfigPropertiesTab';
 import DeviceTab from './components/DeviceTab';
@@ -29,14 +37,19 @@ import NetworkConfigTab from './components/NetworkConfigTab';
 import { saveData, saveDeviceConfig, saveNetworkConfig, reboot } from './api/configApi';
 import './App.css';
 
+const DRAWER_WIDTH = 256;
+
 // Material UI theme with green accent
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#4CAF50', // Green
+      main: '#10b981', // Teal green to match screenshot
     },
     secondary: {
-      main: '#388E3C', // Dark green
+      main: '#059669', // Darker green
+    },
+    background: {
+      default: '#f9fafb',
     },
   },
   typography: {
@@ -69,18 +82,18 @@ function App() {
   const wxtTabRef = useRef<any>(null);
   const networkTabRef = useRef<any>(null);
 
-  const tabs = [
-    { label: 'Devices', key: 'devices' },
-    { label: 'Config Properties', key: 'config' },
-    { label: 'IBAC', key: 'ibac' },
-    { label: 'S900', key: 's900' },
-    { label: 'OriTestGTDB', key: 'ori' },
-    { label: 'WXT53X', key: 'wxt' },
-    { label: 'Network Config', key: 'network' }
+  const menuItems = [
+    { label: 'Devices', key: 'devices', icon: <DescriptionIcon /> },
+    { label: 'Config Properties', key: 'config', icon: <SettingsIcon /> },
+    { label: 'IBAC', key: 'ibac', icon: <RadioIcon /> },
+    { label: 'S900', key: 's900', icon: <RadioIcon /> },
+    { label: 'ORITESTGTDB', key: 'ori', icon: <DescriptionIcon /> },
+    { label: 'WXT53X', key: 'wxt', icon: <WifiIcon /> },
+    { label: 'Network Config', key: 'network', icon: <NetworkCheckIcon /> }
   ];
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setCurrentTab(newValue);
+  const handleMenuClick = (index: number) => {
+    setCurrentTab(index);
   };
 
   const handleDataChange = (tabKey: string, changed: boolean) => {
@@ -91,7 +104,7 @@ function App() {
     setIsValid(prev => ({ ...prev, [tabKey]: valid }));
   };
 
-  const getCurrentTabKey = () => tabs[currentTab].key;
+  const getCurrentTabKey = () => menuItems[currentTab].key;
 
   const isCurrentTabValid = () => {
     const currentKey = getCurrentTabKey();
@@ -196,145 +209,235 @@ function App() {
     }
   };
 
-  const renderTabWithIndicator = (label: string, key: string) => {
-    return (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        {label}
-        {hasChanges[key] && (
-          <FiberManualRecordIcon 
-            sx={{ 
-              fontSize: 10, 
-              color: 'warning.main',
-              animation: 'pulse 2s infinite'
-            }} 
-          />
-        )}
-      </Box>
-    );
+  const getPageTitle = () => {
+    const currentItem = menuItems[currentTab];
+    if (currentTab === 0) return 'Device Manager Configuration';
+    if (currentTab === 1) return 'Config Properties';
+    if (currentTab === 6) return 'Network Configuration';
+    return `${currentItem.label} Configuration`;
+  };
+
+  const getPageSubtitle = () => {
+    if (currentTab === 0) return 'Configure the device manager key and name for MQTT communication';
+    if (currentTab === 1) return 'Configure MQTT broker settings and connection parameters';
+    if (currentTab === 6) return 'Configure network interface settings for static IP or DHCP';
+    return `Configure ${menuItems[currentTab].label} device settings`;
   };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ flexGrow: 1, minHeight: '100vh', bgcolor: 'background.default' }}>
-        <AppBar position="static" color="primary" elevation={2}>
-          <Toolbar>
+      <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+        {/* Left Sidebar */}
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: DRAWER_WIDTH,
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              width: DRAWER_WIDTH,
+              boxSizing: 'border-box',
+              bgcolor: '#ffffff',
+              borderRight: '1px solid #e5e7eb',
+            },
+          }}
+        >
+          {/* Logo and Title */}
+          <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
             <Box
-              component="img"
               sx={{
-                height: 40,
-                mr: 2,
-                filter: 'brightness(0) invert(1)', // Make logo white
-              }}
-              alt="Observis Logo"
-              src="/observis-logo.png"
-              onError={(e: any) => {
-                e.target.style.display = 'none'; // Hide if logo not found
-              }}
-            />
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Device Manager Configuration
-            </Typography>
-            <Button
-              variant="contained"
-              color="secondary"
-              startIcon={<SaveIcon />}
-              onClick={handleSaveAndReboot}
-              disabled={saving || hasChanges[getCurrentTabKey()] !== true}
-            >
-              {saving ? 'Saving...' : 'Save & Reboot'}
-            </Button>
-          </Toolbar>
-        </AppBar>
-
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Paper elevation={3}>
-            <Tabs
-              value={currentTab}
-              onChange={handleTabChange}
-              variant="scrollable"
-              scrollButtons="auto"
-              sx={{
-                borderBottom: 1,
-                borderColor: 'divider',
-                '& .MuiTab-root': {
-                  minWidth: 100,
-                  fontSize: '0.875rem'
-                }
+                width: 48,
+                height: 48,
+                borderRadius: '12px',
+                bgcolor: 'primary.main',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
               }}
             >
-              {tabs.map((tab) => (
-                <Tab
-                  key={tab.key}
-                  label={renderTabWithIndicator(tab.label, tab.key)}
-                />
-              ))}
-            </Tabs>
-
-            <Box sx={{ p: 3 }}>
-              {currentTab === 0 && (
-                <DevicesTab
-                  ref={devicesTabRef}
-                  onDataChange={(changed) => handleDataChange('devices', changed)}
-                  onValidationChange={(valid) => handleValidationChange('devices', valid)}
-                />
-              )}
-              {currentTab === 1 && (
-                <ConfigPropertiesTab
-                  ref={configPropertiesTabRef}
-                  onDataChange={(changed) => handleDataChange('config', changed)}
-                  onValidationChange={(valid) => handleValidationChange('config', valid)}
-                />
-              )}
-              {currentTab === 2 && (
-                <DeviceTab
-                  ref={ibacTabRef}
-                  deviceName="IBAC"
-                  onDataChange={(changed) => handleDataChange('ibac', changed)}
-                  onValidationChange={(valid) => handleValidationChange('ibac', valid)}
-                />
-              )}
-              {currentTab === 3 && (
-                <DeviceTab
-                  ref={s900TabRef}
-                  deviceName="S900"
-                  onDataChange={(changed) => handleDataChange('s900', changed)}
-                  onValidationChange={(valid) => handleValidationChange('s900', valid)}
-                />
-              )}
-              {currentTab === 4 && (
-                <DeviceTab
-                  ref={oriTabRef}
-                  deviceName="oritestgtdb"
-                  onDataChange={(changed) => handleDataChange('ori', changed)}
-                  onValidationChange={(valid) => handleValidationChange('ori', valid)}
-                />
-              )}
-              {currentTab === 5 && (
-                <DeviceTab
-                  ref={wxtTabRef}
-                  deviceName="wxt53x"
-                  onDataChange={(changed) => handleDataChange('wxt', changed)}
-                  onValidationChange={(valid) => handleValidationChange('wxt', valid)}
-                />
-              )}
-              {currentTab === 6 && (
-                <NetworkConfigTab
-                  ref={networkTabRef}
-                  onDataChange={(changed) => handleDataChange('network', changed)}
-                  onValidationChange={(valid) => handleValidationChange('network', valid)}
-                />
-              )}
+              <SettingsIcon sx={{ fontSize: 28 }} />
             </Box>
-          </Paper>
-        </Container>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+                Device Manager
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                Configuration
+              </Typography>
+            </Box>
+          </Box>
+
+          <Divider />
+
+          {/* Navigation Menu */}
+          <List sx={{ px: 2, py: 2 }}>
+            {menuItems.map((item, index) => (
+              <ListItem key={item.key} disablePadding sx={{ mb: 0.5 }}>
+                <ListItemButton
+                  selected={currentTab === index}
+                  onClick={() => handleMenuClick(index)}
+                  sx={{
+                    borderRadius: '8px',
+                    '&.Mui-selected': {
+                      bgcolor: '#d1fae5',
+                      color: '#065f46',
+                      '&:hover': {
+                        bgcolor: '#a7f3d0',
+                      },
+                      '& .MuiListItemIcon-root': {
+                        color: '#065f46',
+                      },
+                    },
+                    '&:hover': {
+                      bgcolor: '#f3f4f6',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={item.label}
+                    primaryTypographyProps={{
+                      fontSize: '0.875rem',
+                      fontWeight: currentTab === index ? 600 : 400,
+                    }}
+                  />
+                  {hasChanges[item.key] && (
+                    <FiberManualRecordIcon 
+                      sx={{ 
+                        fontSize: 8, 
+                        color: '#f59e0b',
+                        ml: 1
+                      }} 
+                    />
+                  )}
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+
+          {/* Version at bottom */}
+          <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{ p: 3, borderTop: '1px solid #e5e7eb' }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              v2.0.1
+            </Typography>
+          </Box>
+        </Drawer>
+
+        {/* Main Content Area */}
+        <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* Top Bar */}
+          <AppBar 
+            position="static" 
+            elevation={0}
+            sx={{ 
+              bgcolor: 'white',
+              borderBottom: '1px solid #e5e7eb',
+            }}
+          >
+            <Toolbar sx={{ py: 2 }}>
+              <Box sx={{ flexGrow: 1 }}>
+                <Typography variant="h5" sx={{ color: 'text.primary', fontWeight: 600, mb: 0.5 }}>
+                  {getPageTitle()}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {getPageSubtitle()}
+                </Typography>
+              </Box>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<SaveIcon />}
+                onClick={handleSaveAndReboot}
+                disabled={saving || hasChanges[getCurrentTabKey()] !== true}
+                sx={{
+                  textTransform: 'none',
+                  px: 3,
+                  py: 1.5,
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                }}
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </Toolbar>
+          </AppBar>
+
+          {/* Content Area */}
+          <Box 
+            component="main" 
+            sx={{ 
+              flexGrow: 1, 
+              p: 4,
+              bgcolor: 'background.default',
+              overflow: 'auto'
+            }}
+          >
+            {currentTab === 0 && (
+              <DevicesTab
+                ref={devicesTabRef}
+                onDataChange={(changed) => handleDataChange('devices', changed)}
+                onValidationChange={(valid) => handleValidationChange('devices', valid)}
+              />
+            )}
+            {currentTab === 1 && (
+              <ConfigPropertiesTab
+                ref={configPropertiesTabRef}
+                onDataChange={(changed) => handleDataChange('config', changed)}
+                onValidationChange={(valid) => handleValidationChange('config', valid)}
+              />
+            )}
+            {currentTab === 2 && (
+              <DeviceTab
+                ref={ibacTabRef}
+                deviceName="IBAC"
+                onDataChange={(changed) => handleDataChange('ibac', changed)}
+                onValidationChange={(valid) => handleValidationChange('ibac', valid)}
+              />
+            )}
+            {currentTab === 3 && (
+              <DeviceTab
+                ref={s900TabRef}
+                deviceName="S900"
+                onDataChange={(changed) => handleDataChange('s900', changed)}
+                onValidationChange={(valid) => handleValidationChange('s900', valid)}
+              />
+            )}
+            {currentTab === 4 && (
+              <DeviceTab
+                ref={oriTabRef}
+                deviceName="oritestgtdb"
+                onDataChange={(changed) => handleDataChange('ori', changed)}
+                onValidationChange={(valid) => handleValidationChange('ori', valid)}
+              />
+            )}
+            {currentTab === 5 && (
+              <DeviceTab
+                ref={wxtTabRef}
+                deviceName="wxt53x"
+                onDataChange={(changed) => handleDataChange('wxt', changed)}
+                onValidationChange={(valid) => handleValidationChange('wxt', valid)}
+              />
+            )}
+            {currentTab === 6 && (
+              <NetworkConfigTab
+                ref={networkTabRef}
+                onDataChange={(changed) => handleDataChange('network', changed)}
+                onValidationChange={(valid) => handleValidationChange('network', valid)}
+              />
+            )}
+          </Box>
+        </Box>
 
         {/* Confirmation Dialog */}
         <Dialog
           open={confirmDialog}
           onClose={() => setConfirmDialog(false)}
         >
-          <DialogTitle>Confirm Save & Reboot</DialogTitle>
+          <DialogTitle>Confirm Save Changes</DialogTitle>
           <DialogContent>
             <DialogContentText>
               This will save the current configuration and reboot the system. 
@@ -348,7 +451,7 @@ function App() {
               Cancel
             </Button>
             <Button onClick={executeSaveAndReboot} color="primary" variant="contained" autoFocus>
-              Save & Reboot
+              Save Changes
             </Button>
           </DialogActions>
         </Dialog>

@@ -1,5 +1,6 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { TextField, CircularProgress, Alert, Box, Typography } from '@mui/material';
+import { TextField, CircularProgress, Alert, Box, Typography, Paper } from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
 import { getDevicesConfig } from '../api/configApi';
 import { validateMQTTTopic } from '../utils/validation';
 
@@ -86,38 +87,103 @@ const DevicesTab = forwardRef((props: DevicesTabProps, ref) => {
 
   return (
     <Box>
-      <Typography variant="h6" gutterBottom>
-        Device Manager Configuration
-      </Typography>
-      <Typography variant="body2" color="text.secondary" paragraph>
-        Configure the device manager key and name for MQTT communication.
-      </Typography>
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          bgcolor: 'white',
+          borderRadius: 2,
+          overflow: 'hidden',
+          border: '1px solid #e5e7eb'
+        }}
+      >
+        {/* Green Header */}
+        <Box 
+          sx={{ 
+            bgcolor: '#10b981', 
+            color: 'white', 
+            py: 2.5, 
+            px: 3 
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Device Configuration
+          </Typography>
+        </Box>
 
-      {message && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {message}
-        </Alert>
-      )}
+        {/* Form Content */}
+        <Box sx={{ p: 3 }}>
+          {message && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {message}
+            </Alert>
+          )}
 
-      <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 } }}>
-        <TextField
-          fullWidth
-          label="Device Manager Key"
-          value={deviceManagerKey}
-          onChange={(e) => setDeviceManagerKey(e.target.value)}
-          error={!!errors.deviceManagerKey}
-          helperText={errors.deviceManagerKey || 'MQTT topic key for this device manager'}
-        />
+          <Box component="form" sx={{ '& .MuiTextField-root': { mb: 3 } }}>
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Device Manager Key
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="DM-1"
+                value={deviceManagerKey}
+                onChange={(e) => setDeviceManagerKey(e.target.value)}
+                error={!!errors.deviceManagerKey}
+                helperText={errors.deviceManagerKey || 'MQTT topic key for this device manager'}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    bgcolor: 'white',
+                  }
+                }}
+              />
+            </Box>
 
-        <TextField
-          fullWidth
-          label="Device Manager Name"
-          value={deviceManagerName}
-          onChange={(e) => setDeviceManagerName(e.target.value)}
-          error={!!errors.deviceManagerName}
-          helperText={errors.deviceManagerName || 'Human-readable name for this device manager'}
-        />
-      </Box>
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Device Manager Name
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="Detection Station 1"
+                value={deviceManagerName}
+                onChange={(e) => setDeviceManagerName(e.target.value)}
+                error={!!errors.deviceManagerName}
+                helperText={errors.deviceManagerName || 'Human-readable name for this device manager'}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    bgcolor: 'white',
+                  }
+                }}
+              />
+            </Box>
+          </Box>
+
+          {/* Configuration Tips Box */}
+          <Alert 
+            icon={<InfoIcon />}
+            severity="info"
+            sx={{ 
+              mt: 3,
+              bgcolor: '#dbeafe',
+              color: '#1e40af',
+              '& .MuiAlert-icon': {
+                color: '#3b82f6'
+              },
+              border: '1px solid #93c5fd',
+              borderRadius: 2
+            }}
+          >
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              Configuration Tips
+            </Typography>
+            <Box component="ul" sx={{ m: 0, pl: 2.5, '& li': { mb: 0.5 } }}>
+              <li>Use unique keys to avoid MQTT topic conflicts</li>
+              <li>Names should be descriptive for easy identification</li>
+              <li>Changes take effect after saving and restarting</li>
+            </Box>
+          </Alert>
+        </Box>
+      </Paper>
     </Box>
   );
 });
