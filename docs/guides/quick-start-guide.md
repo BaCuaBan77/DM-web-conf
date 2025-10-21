@@ -156,7 +156,7 @@ Open your browser to: **http://localhost:3000**
 - Baud Rate: `9600` to `115200`
 - Data Bits: `7` or `8`
 - Stop Bits: `1` or `2`
-- Parity: `None`, `Even`, `Odd`
+- Parity: `None`, `Even`, `Odd` (displayed in UI, stored as `N`, `E`, `O`)
 - Port Type: `RS232` or `RS485`
 
 **Common Settings:**

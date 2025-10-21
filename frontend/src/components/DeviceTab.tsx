@@ -25,6 +25,17 @@ interface DeviceTabProps {
   onValidationChange: (isValid: boolean) => void;
 }
 
+// Parity conversion functions: UI uses "None"/"Even"/"Odd", backend uses "N"/"E"/"O"
+const parityToDisplay = (parity: string): string => {
+  const map: { [key: string]: string } = { 'N': 'None', 'E': 'Even', 'O': 'Odd' };
+  return map[parity] || parity;
+};
+
+const parityToStorage = (parity: string): string => {
+  const map: { [key: string]: string } = { 'None': 'N', 'Even': 'E', 'Odd': 'O' };
+  return map[parity] || parity;
+};
+
 const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
   const { deviceName, onDataChange, onValidationChange } = props;
   const [config, setConfig] = useState<any>({});
@@ -34,7 +45,14 @@ const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useImperativeHandle(ref, () => ({
-    getData: () => config
+    getData: () => {
+      // Convert parity from display format to storage format before saving
+      const dataToSave = { ...config };
+      if (dataToSave.parity) {
+        dataToSave.parity = parityToStorage(dataToSave.parity);
+      }
+      return dataToSave;
+    }
   }));
 
   useEffect(() => {
@@ -50,6 +68,12 @@ const DeviceTab = forwardRef((props: DeviceTabProps, ref) => {
     try {
       setLoading(true);
       const data = await getDeviceConfig(deviceName);
+      
+      // Convert parity from storage format to display format
+      if (data.parity) {
+        data.parity = parityToDisplay(data.parity);
+      }
+      
       setConfig(data);
       setOriginalData(data);
     } catch (error: any) {

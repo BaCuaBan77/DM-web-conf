@@ -105,7 +105,7 @@ The web interface will itself run in a **Docker container**, exposed on port **8
 | `speed` | Dropdown | No validation | `9600`, `19200`, `38400`, `57600`, `115200` |
 | `bits` | Dropdown | No validation | `7`, `8` |
 | `stopBits` | Dropdown | No validation | `1`, `2` |
-| `parity` | Dropdown | No validation | `None`, `Even`, `Odd` |
+| `parity` | Dropdown | No validation | `None`, `Even`, `Odd` (UI) / `N`, `E`, `O` (Storage) |
 | `serialPortType` | Dropdown | No validation | `RS232`, `RS485` |
 | `name` | String | Max 50 chars, may include spaces | Device name |
 
@@ -129,7 +129,7 @@ The web interface will itself run in a **Docker container**, exposed on port **8
 | `speed` | Dropdown | No validation | Same as IBAC |
 | `bits` | Dropdown | No validation | `7`, `8` |
 | `stopBits` | Dropdown | No validation | `1`, `2` |
-| `parity` | Dropdown | No validation | `None`, `Even`, `Odd` |
+| `parity` | Dropdown | No validation | `None`, `Even`, `Odd` (UI) / `N`, `E`, `O` (Storage) |
 | `serialPortType` | Dropdown | No validation | `RS232`, `RS485` |
 | `name` | String | Max 50 chars, may include spaces |
 

@@ -3,7 +3,7 @@
   "speed": "9600",
   "bits": "8",
   "stopBits": "1",
-  "parity": "None",
+  "parity": "N",
   "serialPortType": "RS232",
   "name": "Test IBAC Device",
   "internalConfig": "not editable",

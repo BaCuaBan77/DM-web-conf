@@ -1,21 +1,22 @@
 {
-  "serialDeviceConfiguration": {
-    "deviceMainType": "IBAC2",
-    "measPoints": [],
-    "deviceKey": "IBAC2",
-    "deviceMeasType": "BIO",
-    "name": "BIO", 
-    "categoryName": "Bunker",
-    "description": "IBAC2",
-    "connectionType": "SERIAL",
-    "address": "/dev/ttyS0",
-    "speed": 57600,
-    "bits": 8,
-    "stopBits": 1,
-    "parity": "N",
-    "serialPortType": "RS232",
-    "deviceModel": 200,
-    "phenomenons": {},
-    "physicalDeviceModelId": 200
+  "serialDeviceConfiguration" : {
+    "deviceMainType" : "IBAC2",
+    "measPoints" : [ ],
+    "deviceKey" : "IBAC2",
+    "deviceMeasType" : "BIO",
+    "name" : "BIO",
+    "categoryName" : "Bunker",
+    "description" : "IBAC2",
+    "connectionType" : "SERIAL",
+    "address" : "ttyS1",
+    "speed" : 57600,
+    "bits" : 8,
+    "stopBits" : 1,
+    "parity" : "E",
+    "serialPortType" : "RS232",
+    "deviceModel" : 200,
+    "phenomenons" : { },
+    "physicalDeviceModelId" : 200,
+    "enabled" : true
   }
 }

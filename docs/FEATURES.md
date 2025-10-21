@@ -81,11 +81,11 @@
 #### Device-Specific Pages
 
 **Serial Devices (IBAC2, WXT53X):**
-- Serial port dropdown (ttyS0, ttyS1)
+- Serial port dropdown (ttyS0, ttyS1 or /dev/ttyS0, /dev/ttyS1)
 - Baud rate selection (9600-115200)
 - Data bits (7, 8)
 - Stop bits (1, 2)
-- Parity (None, Even, Odd)
+- Parity (UI: None/Even/Odd, Storage: N/E/O)
 - Serial port type (RS232, RS485)
 - Device name field
 

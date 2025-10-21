@@ -107,7 +107,7 @@ GET /api/device/{deviceName}
   "speed": "9600",
   "bits": "8",
   "stopBits": "1",
-  "parity": "None",
+  "parity": "N",
   "serialPortType": "RS232"
 }
 ```
@@ -147,7 +147,7 @@ Content-Type: application/json
   "speed": "9600",
   "bits": "8",
   "stopBits": "1",
-  "parity": "None",
+  "parity": "N",
   "serialPortType": "RS232"
 }
 ```
@@ -228,11 +228,11 @@ POST /api/reboot
 ### Device Configurations
 
 #### Serial Devices (IBAC2, WXT53X)
-- **address**: `ttyS0` or `ttyS1`
+- **address**: `ttyS0` or `ttyS1` (or `/dev/ttyS0`, `/dev/ttyS1`)
 - **speed**: `9600`, `19200`, `38400`, `57600`, or `115200`
 - **bits**: `7` or `8`
 - **stopBits**: `1` or `2`
-- **parity**: `None`, `Even`, or `Odd`
+- **parity**: `N` (None), `E` (Even), or `O` (Odd) - *Note: UI displays full names, backend stores single letters*
 - **serialPortType**: `RS232` or `RS485`
 - **name**: Max 50 characters
 
