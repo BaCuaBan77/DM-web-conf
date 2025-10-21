@@ -35,9 +35,10 @@ class RebootServiceTest {
         Path rebootScript = tempDir.resolve("reboot.sh");
         Files.writeString(rebootScript, "#!/bin/bash\necho 'Reboot simulated'\n");
         
-        // Make script executable (Unix-like systems only)
+        // Make script executable (Unix-like systems: Linux, macOS, Unix)
         if (System.getProperty("os.name").toLowerCase().contains("nix") || 
-            System.getProperty("os.name").toLowerCase().contains("nux")) {
+            System.getProperty("os.name").toLowerCase().contains("nux") ||
+            System.getProperty("os.name").toLowerCase().contains("mac")) {
             Files.setPosixFilePermissions(rebootScript, Set.of(
                 PosixFilePermission.OWNER_READ,
                 PosixFilePermission.OWNER_WRITE,
@@ -81,6 +82,17 @@ class RebootServiceTest {
         // Arrange
         Path rebootScript = tempDir.resolve("reboot.sh");
         Files.writeString(rebootScript, "#!/bin/bash\nexit 0\n");
+        
+        // Make script executable (Unix-like systems: Linux, macOS, Unix)
+        if (System.getProperty("os.name").toLowerCase().contains("nix") || 
+            System.getProperty("os.name").toLowerCase().contains("nux") ||
+            System.getProperty("os.name").toLowerCase().contains("mac")) {
+            Files.setPosixFilePermissions(rebootScript, Set.of(
+                PosixFilePermission.OWNER_READ,
+                PosixFilePermission.OWNER_WRITE,
+                PosixFilePermission.OWNER_EXECUTE
+            ));
+        }
 
         // Act
         String result = rebootService.executeRebootScript(rebootScript.toString());
