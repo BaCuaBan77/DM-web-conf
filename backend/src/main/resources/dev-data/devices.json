@@ -1,4 +1,4 @@
 {
-  "deviceManagerKey" : "test-loading",
-  "deviceManagerName" : "Detection Station 1"
+  "deviceManagerKey" : "valid_key",
+  "deviceManagerName" : "Valid Name"
 }

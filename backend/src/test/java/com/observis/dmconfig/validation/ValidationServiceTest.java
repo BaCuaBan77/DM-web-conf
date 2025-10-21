@@ -194,13 +194,13 @@ class ValidationServiceTest {
     // ===== Test: Parity validation =====
     
     @ParameterizedTest
-    @ValueSource(strings = {"None", "Even", "Odd"})
+    @ValueSource(strings = {"N", "E", "O"})
     void testValidateParity_ValidOptions_ReturnsTrue(String parity) {
         assertTrue(validationService.validateParity(parity));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"Mark", "Space", "invalid", ""})
+    @ValueSource(strings = {"None", "Even", "Odd", "Mark", "Space", "invalid", ""})
     void testValidateParity_InvalidOptions_ReturnsFalse(String parity) {
         assertFalse(validationService.validateParity(parity));
     }

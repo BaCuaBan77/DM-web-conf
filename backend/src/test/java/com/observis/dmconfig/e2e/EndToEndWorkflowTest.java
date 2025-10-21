@@ -69,15 +69,16 @@ public class EndToEndWorkflowTest {
         // 1. Get current config properties
         mockMvc.perform(get("/api/config/properties"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.['fi.observis.sas.mqtt.url']").exists());
+                .andExpect(jsonPath("$.['mqtt.broker']").exists())
+                .andExpect(jsonPath("$.['mqtt.port']").exists());
 
         // 2. Update config properties
         Map<String, Object> saveRequest = new HashMap<>();
         saveRequest.put("configType", "properties");
         
         Map<String, String> configData = new HashMap<>();
-        configData.put("fi.observis.sas.mqtt.url", "192.168.1.100");
-        configData.put("system.environment", "test");
+        configData.put("mqtt.broker", "192.168.1.100");
+        configData.put("mqtt.port", "1883");
         saveRequest.put("data", configData);
 
         mockMvc.perform(post("/api/save")
@@ -89,8 +90,8 @@ public class EndToEndWorkflowTest {
         // 3. Verify the update
         mockMvc.perform(get("/api/config/properties"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.['fi.observis.sas.mqtt.url']").value("192.168.1.100"))
-                .andExpect(jsonPath("$.['system.environment']").value("test"));
+                .andExpect(jsonPath("$.['mqtt.broker']").value("192.168.1.100"))
+                .andExpect(jsonPath("$.['mqtt.port']").value("1883"));
     }
 
     @Test
@@ -133,7 +134,7 @@ public class EndToEndWorkflowTest {
         ibacConfig.put("speed", "19200");
         ibacConfig.put("bits", "8");
         ibacConfig.put("stopBits", "1");
-        ibacConfig.put("parity", "None");
+        ibacConfig.put("parity", "N");
         ibacConfig.put("serialPortType", "RS485");
         ibacConfig.put("name", "Updated IBAC Device");
         ibacConfig.put("deviceType", "IBAC");
@@ -222,8 +223,8 @@ public class EndToEndWorkflowTest {
         Map<String, Object> configRequest = new HashMap<>();
         configRequest.put("configType", "properties");
         Map<String, String> configData = new HashMap<>();
-        configData.put("fi.observis.sas.mqtt.url", "10.0.0.1");
-        configData.put("system.environment", "sequential-test");
+        configData.put("mqtt.broker", "10.0.0.1");
+        configData.put("mqtt.port", "1883");
         configRequest.put("data", configData);
 
         mockMvc.perform(post("/api/save")
@@ -250,7 +251,8 @@ public class EndToEndWorkflowTest {
 
         mockMvc.perform(get("/api/config/properties"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.['fi.observis.sas.mqtt.url']").value("10.0.0.1"));
+                .andExpect(jsonPath("$.['mqtt.broker']").value("10.0.0.1"))
+                .andExpect(jsonPath("$.['mqtt.port']").value("1883"));
 
         mockMvc.perform(get("/api/device/IBAC"))
                 .andExpect(status().isOk())
