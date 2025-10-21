@@ -29,7 +29,7 @@ describe('DevicesTab', () => {
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
 
     // Act
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
 
     // Assert
     await waitFor(() => {
@@ -45,7 +45,7 @@ describe('DevicesTab', () => {
     );
 
     // Act
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
 
     // Assert
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
@@ -56,7 +56,7 @@ describe('DevicesTab', () => {
   it('should validate deviceManagerKey - reject forward slashes', async () => {
     // Arrange
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     const keyInput = screen.getByLabelText(/device manager key/i);
@@ -74,7 +74,7 @@ describe('DevicesTab', () => {
   it('should validate deviceManagerKey - reject # and + characters', async () => {
     // Arrange
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     const keyInput = screen.getByLabelText(/device manager key/i);
@@ -92,7 +92,7 @@ describe('DevicesTab', () => {
   it('should validate deviceManagerKey - reject > 20 characters', async () => {
     // Arrange
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     const keyInput = screen.getByLabelText(/device manager key/i);
@@ -110,7 +110,7 @@ describe('DevicesTab', () => {
   it('should accept valid MQTT topic characters in deviceManagerKey', async () => {
     // Arrange
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     const keyInput = screen.getByLabelText(/device manager key/i);
@@ -130,7 +130,7 @@ describe('DevicesTab', () => {
   it('should validate deviceManagerName - reject > 50 characters', async () => {
     // Arrange
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('Test Device Manager'));
 
     const nameInput = screen.getByLabelText(/device manager name/i);
@@ -148,7 +148,7 @@ describe('DevicesTab', () => {
   it('should accept spaces in deviceManagerName', async () => {
     // Arrange
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('Test Device Manager'));
 
     const nameInput = screen.getByLabelText(/device manager name/i);
@@ -168,7 +168,7 @@ describe('DevicesTab', () => {
   it('should enable save button with valid inputs', async () => {
     // Arrange
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     const saveButton = screen.getByRole('button', { name: /save/i });
@@ -180,7 +180,7 @@ describe('DevicesTab', () => {
   it('should disable save button with invalid inputs', async () => {
     // Arrange
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     const keyInput = screen.getByLabelText(/device manager key/i);
@@ -201,7 +201,7 @@ describe('DevicesTab', () => {
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
     vi.mocked(saveDevicesConfig).mockResolvedValue({ success: true, message: 'Saved successfully' });
     
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     const keyInput = screen.getByLabelText(/device manager key/i);
@@ -227,7 +227,7 @@ describe('DevicesTab', () => {
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
     vi.mocked(saveDevicesConfig).mockRejectedValue(new Error('Save failed'));
     
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     const saveButton = screen.getByRole('button', { name: /save/i });
@@ -248,7 +248,7 @@ describe('DevicesTab', () => {
     vi.mocked(getDevicesConfig).mockRejectedValue(new Error('Failed to load'));
 
     // Act
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
 
     // Assert
     await waitFor(() => {
@@ -261,7 +261,7 @@ describe('DevicesTab', () => {
   it('should show validation message in real-time as user types', async () => {
     // Arrange
     vi.mocked(getDevicesConfig).mockResolvedValue(mockDevicesData);
-    render(<DevicesTab />);
+    render(<DevicesTab onDataChange={() => {}} onValidationChange={() => {}} />);
     await waitFor(() => screen.getByDisplayValue('test_key'));
 
     const keyInput = screen.getByLabelText(/device manager key/i);
