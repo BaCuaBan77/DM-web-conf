@@ -201,7 +201,7 @@ function App() {
             
             case 'config':
               const configData = configPropertiesTabRef.current?.getData();
-              response = await saveData('config', configData);
+              response = await saveData('properties', configData);
               break;
             
             case 'ibac':
