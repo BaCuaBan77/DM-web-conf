@@ -708,7 +708,7 @@ For technical support or questions:
 - 🔄 Multi-language support
 
 ---
-## 🛠️ Technologies
+## Technologies
 
 - Java - 17
 - Spring Boot - 3.2
