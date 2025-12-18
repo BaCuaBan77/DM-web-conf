@@ -1,63 +1,15 @@
 # Device Manager Web Configuration
 
-> A modern, user-friendly web interface for configuring Device Manager systems running on Debian hardware
+![Device Manager Web Configuration Screenshot](image.png)
 
-[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
-[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://openjdk.org/projects/jdk/17/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue.svg)](https://www.typescriptlang.org/)
-
-<!-- Add your GitHub workflow badges here after pushing to GitHub:
-[![Test Suite](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/test.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/test.yml)
-[![Docker Build](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/docker-build-push.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/docker-build-push.yml)
--->
 
 ---
 
-## 📋 Overview
+## Abstract
 
-The Device Manager Web Configuration interface provides a professional web-based solution for managing configuration files on Debian-based detection systems. Built with modern technologies and following Material UI design principles, it offers an intuitive experience for configuring detection devices, network settings, and system parameters.
+Device Manager Web Configuration is a modern web application for configuring Observis detection systems on Debian-based hosts. It centralizes device settings (IBAC2, S900, GTD Module‑B, WXT53X), network parameters (DHCP/static with auto‑detected interface), and system properties into a single, safe workflow. Changes are validated in the browser and on the server, tracked across tabs, and saved atomically with one operation that triggers a controlled reboot when required. The stack consists of a Spring Boot backend and a React + TypeScript frontend, with comprehensive unit, integration, and Playwright end‑to‑end tests to ensure reliability.
 
-### Key Features
-
-✨ **Modern UI/UX**
-- Material UI components with Observis green theme
-- Sidebar navigation with grouped sections
-- Real-time validation with instant feedback
-- Change tracking with visual indicators
-- Responsive design for desktop and tablet
-
-💾 **Save All Changes**
-- Modify multiple configurations
-- Single save operation for all changes
-- Atomic updates with one system reboot
-- Clear confirmation of what's being saved
-
-🔧 **Device Configuration**
-- **IBAC2** - Biological detection (serial interface)
-- **S900** - Radiation detection (network interface)
-- **GTD Module-B** - Chemical detection (network interface)
-- **WXT53X** - Weather station (serial interface)
-
-🌐 **Network Management**
-- Static IP or DHCP configuration
-- Debian `/etc/network/interfaces` editing
-- Real-time IPv4 validation
-- Safe configuration with warnings
-
-🛡️ **Validation & Safety**
-- Frontend and backend validation
-- MQTT topic format checking
-- IPv4 address validation
-- Port number range checking
-- Device-specific rules
-
-🧪 **Comprehensive Testing**
-- Unit tests (JUnit 5, Vitest)
-- Integration tests
-- E2E tests (Playwright)
-- >80% code coverage
+The project is made for Observis to reduce configuration cost and increase user configurability. This leverages the Observis's product: CBRN Detection Station
 
 ---
 
@@ -756,6 +708,20 @@ For technical support or questions:
 - 🔄 Multi-language support
 
 ---
+## 🛠️ Technologies
+
+- Java - 17
+- Spring Boot - 3.2
+- Node.js - 20.18.3
+- React - 18
+- TypeScript - 5
+- Maven - 3.9
+- Docker - 24
+- Docker Compose - 2.21
+- Material UI - 5
+- Playwright - 1.42
+
+
 
 <div align="center">
 
