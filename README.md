@@ -657,7 +657,18 @@ Examples:
 
 📖 **Contributing Guide:** See [`docs/guides/development-guide.md#contributing`](docs/guides/development-guide.md#contributing)
 
----
+## Technologies
+
+- Java - 17
+- Spring Boot - 3.2
+- Node.js - 20.18.3
+- React - 18
+- TypeScript - 5
+- Maven - 3.9
+- Docker - 24
+- Docker Compose - 2.21
+- Material UI - 5
+- Playwright - 1.42
 
 ## 📜 License
 
@@ -708,18 +719,7 @@ For technical support or questions:
 - 🔄 Multi-language support
 
 ---
-## Technologies
 
-- Java - 17
-- Spring Boot - 3.2
-- Node.js - 20.18.3
-- React - 18
-- TypeScript - 5
-- Maven - 3.9
-- Docker - 24
-- Docker Compose - 2.21
-- Material UI - 5
-- Playwright - 1.42
 
 
 
